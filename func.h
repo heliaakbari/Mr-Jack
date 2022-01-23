@@ -9,12 +9,12 @@ typedef struct cor
 
 typedef struct sell
 {
-    int what;
-    int watch;
-    int who;
+    char what[10];
+    char watch[4];
+    char who[3];
     cordinate *neighbor;
 } cell;
 
-void display_map();
+void display_map(cell map[9][13]);
 
 #endif
