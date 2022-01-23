@@ -1,0 +1,195 @@
+0 0
+apartment
+off
+NU
+-1 -1 -1 -1 0 1 1 0 -1 -1 -1 -1
+0 1
+exitpath1
+off
+NU
+-1 -1 0 2 1 2 1 1 1 0 0 0 
+0 2
+apartment
+off
+NU
+-1 -1 -1 -1 0 3 1 2 0 1 -1 -1
+0 3
+apartment
+off
+NU
+-1 -1 0 4 1 4 1 3 1 2 0 2 
+0 4
+apartment
+off
+NU
+-1 -1 -1 -1 0 5 1 4 0 3 -1 -1
+0 5
+tnl2-open
+off
+NU
+-1 -1 0 6 1 6 1 5 1 4 0 4
+0 6
+apartment
+off
+NU
+-1 -1 -1 -1 0 7 1 6 0 5 -1 -1
+0 7
+apartment
+off
+NU
+-1 -1 0 8 1 8 1 7 1 6 0 6
+0 8 
+apartment
+off
+NU
+-1 -1 -1 -1 0 9 1 8 0 7 -1 -1
+0 9
+apartment
+off
+NU
+-1 -1 0 10 1 10 1 9 1 8 0 8
+0 10
+apartment
+off
+NU
+-1 -1 -1 -1 0 11 1 10 0 9 -1 -1
+0 11
+exitpath2
+off
+NU
+-1 -1 0 12 1 12 1 11 1 10 0 10
+0 12
+apartment
+off
+NU
+-1 -1 -1 -1 -1 -1 1 12 0 11 -1 -1
+1 0
+apartment
+off
+NU
+0 0 0 1 1 1 2 0 -1 -1 -1 -1
+1 1
+side-walk
+on!
+NU
+0 1 1 2 2 2 2 1 2 0 1 0 
+1 2
+apartment
+on!
+NU
+0 2 0 3 1 3 2 2 1 1 0 1
+1 3
+apartment
+on!
+NU
+0 3 1 4 2 4 2 3 2 2 1 2
+1 4
+side-walk
+off
+WG
+0 4 0 5 1 5 2 4 1 3 0 3
+1 5
+lamp8-off
+off
+NU
+0 5 1 6 2 6 2 5 2 4 1 4
+1 6
+side-walk
+off
+NU
+0 6 0 7 1 7 2 6 1 5 0 5
+1 7
+side-walk
+off
+NU
+0 7 1 8 2 8 2 7 2 6 1 6
+1 8
+apartment
+off
+NU
+0 8 0 9 1 9 2 8 1 7 0 7
+1 9
+apartment
+off
+NU
+0 9 1 10 2 10 2 9 2 8 1 8
+1 10
+apartment
+off
+NU
+0 10 0 11 1 11 2 10 1 9 0 9
+1 11
+tnl7-clsd
+on!
+NU
+0 11 1 12 2 12 2 11 2 10 1 10
+1 12
+apartment
+off
+NU
+0 12 -1 -1 -1 -1 2 12 1 11 0 11
+2 0
+apartment
+off
+NU
+1 0 1 1 2 1 3 0 -1 -1 -1 -1
+2 1
+side-walk
+on!
+NU
+1 1 2 2 3 2 3 1 3 0 2 0
+2 2
+lamp3-on!
+off
+NU
+1 2 1 3 2 3 3 2 2 1 1 1
+2 3
+side-walk
+on!
+NU
+1 3 2 4 3 4 3 3 3 2 2 2
+2 4
+side-walk
+off
+NU
+1 4 1 5 2 5 3 4 2 3 1 3
+2 5
+apartment
+off
+NU
+1 5 2 6 3 6 3 5 3 4 2 4
+2 6
+side-walk
+off
+NU
+1 6 1 7 2 7 3 6 2 5 1 5
+2 7
+apartment
+on
+NU
+1 7 2 8 3 8 3 7 3 6 2 6
+2 8
+side-walk
+off
+NU
+1 8 1 9 2 9 3 8 2 7 1 7
+2 9
+side-walk
+off
+NU
+1 9 2 10 3 10 3 9 3 8 2 8
+2 10
+side-walk
+on
+NU
+1 10 1 11 2 11 3 10 2 9 1 9
+2 11
+lamp2-on!
+off
+NU
+1 11 2 12 3 12 3 11 3 10 2 10
+2 12
+side-walk
+on
+NU
+1 12 -1 -1 -1 -1 3 12 2 11 1 11
