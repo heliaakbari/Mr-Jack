@@ -1,39 +1,15 @@
-helloenter what(9) watch(3) who(2) for [0][0]
-enter what(9) watch(3) who(2) for [0][1]
-enter what(9) watch(3) who(2) for [0][2]
-enter what(9) watch(3) who(2) for [0][3]
-enter what(9) watch(3) who(2) for [0][4]
-enter what(9) watch(3) who(2) for [0][5]
-enter what(9) watch(3) who(2) for [0][6]
-enter what(9) watch(3) who(2) for [0][7]
-enter what(9) watch(3) who(2) for [0][8]
-enter what(9) watch(3) who(2) for [0][9]
-enter what(9) watch(3) who(2) for [0][10]
-enter what(9) watch(3) who(2) for [0][11]
-enter what(9) watch(3) who(2) for [0][12]
-enter what(9) watch(3) who(2) for [1][0]
-enter what(9) watch(3) who(2) for [1][1]
-enter what(9) watch(3) who(2) for [1][2]
-enter what(9) watch(3) who(2) for [1][3]
-enter what(9) watch(3) who(2) for [1][4]
-enter what(9) watch(3) who(2) for [1][5]
-enter what(9) watch(3) who(2) for [1][6]
-enter what(9) watch(3) who(2) for [1][7]
-enter what(9) watch(3) who(2) for [1][8]
-enter what(9) watch(3) who(2) for [1][9]
-enter what(9) watch(3) who(2) for [1][10]
-enter what(9) watch(3) who(2) for [1][11]
-enter what(9) watch(3) who(2) for [1][12]
-enter what(9) watch(3) who(2) for [2][0]
-enter what(9) watch(3) who(2) for [2][1]
-enter what(9) watch(3) who(2) for [2][2]
-enter what(9) watch(3) who(2) for [2][3]
-enter what(9) watch(3) who(2) for [2][4]
-enter what(9) watch(3) who(2) for [2][5]
-enter what(9) watch(3) who(2) for [2][6]
-enter what(9) watch(3) who(2) for [2][7]
-enter what(9) watch(3) who(2) for [2][8]
-enter what(9) watch(3) who(2) for [2][9]
-enter what(9) watch(3) who(2) for [2][10]
-enter what(9) watch(3) who(2) for [2][11]
-enter what(9) watch(3) who(2) for [2][12]
+  ________         ________         ________         ________         ________         ________         ________         
+ /  off\         /  off\         /  off\         /  off\         /  off\         /  off\         /  off\        
+/apartment\_______/apartment\_______/apartment\_______/apartment\_______/apartment\_______/apartment\_______/apartment\_______
+\  NU     /  off  \  NU     /  off  \  NU     /  off  \  NU     /  off  \  NU     /  off  \  NU     /  off  \  NU     /  
+  \_______/exitpath1\_______/apartment\_______/tnl2-open\_______/apartment\_______/apartment\_______/exitpath2\_______/
+ /  off  \  NU    /  on!  \  NU    /  off  \  NU    /  off  \  NU    /  off  \  NU    /  off  \  NU    /  off  \  
+/apartment\_______/apartment\_______/side-walk\_______/side-walk\_______/apartment\_______/apartment\_______/apartment\_______
+\  NU     /  on!  \  NU     /  on!  \  WG     /  off  \  NU     /  off  \  NU     /  off  \  NU     /  on!  \  NU     /  
+  \_______/side-walk\_______/apartment\_______/lamp8-off\_______/side-walk\_______/apartment\_______/tnl7-clsd\_______/
+ /  off  \  NU    /  off  \  NU    /  off  \  NU    /  off  \  NU    /  off  \  NU    /  on  \  NU    /  on  \  
+/apartment\_______/lamp3-on!\_______/side-walk\_______/side-walk\_______/side-walk\_______/side-walk\_______/side-walk\_______
+\  NU     /  on!  \  NU     /  on!  \  NU     /  off  \  NU     /  on  \  NU     /  off  \  NU     /  off  \  NU     /  
+  \_______/side-walk\_______/side-walk\_______/apartment\_______/apartment\_______/side-walk\_______/lamp2-on!\_______/
+            NU               NU               NU               NU               NU               NU   
+          \_______/         \_______/         \_______/         \_______/         \_______/         \_______/         \_______/         \_______/         \_______/         \_______/         \_______/         \_______/
