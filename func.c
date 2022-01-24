@@ -297,7 +297,7 @@ void create_cards(person **ptr_odd, person **ptr_even, cell map[9][13])
 
 void shuffle(person **ptr_odd, person **ptr_even)
 {
-    // srand(time(NULL));
+    srand(time(NULL));
     person *odd = *ptr_odd;
     person *even = *ptr_even;
     int count_odd = 0;
