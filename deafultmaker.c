@@ -14,7 +14,7 @@ int main()
     int x;
     int gar1, gar2;
     printf("hello");
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 9; i++)
     {
         for (int j = 0; j < 13; j++)
         {

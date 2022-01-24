@@ -4,15 +4,20 @@
 #include <string.h>
 int main()
 {
-    cell arr[9][13];
-    // display_map(arr);
-
+    cell map[9][13];
     FILE *fp = fopen("newgame.bin", "rb");
-    fread(arr[0][0].what, sizeof(arr[0][0].what), 1, fp);
-    fread(arr[0][0].watch, sizeof(arr[0][0].watch), 1, fp);
-    fread(arr[0][0].who, sizeof(arr[0][0].who), 1, fp);
-    printf("%s%s%s", arr[0][0].what, arr[0][0].watch, arr[0][0].who);
-    printf("%d %d %d", strlen(arr[0][0].what), strlen(arr[0][0].watch), strlen(arr[0][0].who));
+    int a = sizeof(map[0][0].what), b = sizeof(map[0][0].watch), c = sizeof(map[0][0].who);
+    for (int i = 0; i < 9; i++)
+    {
+        for (int j = 0; j < 13; j++)
+        {
+            fread(map[i][j].what, a, 1, fp);
+            fread(map[i][j].watch, b, 1, fp);
+            fread(map[i][j].who, c, 1, fp);
+            fread(map[i][j].neighbor, sizeof(int), 12, fp);
+        }
+    }
+    display_map(map);
     fclose(fp);
     getchar();
     return 0;
