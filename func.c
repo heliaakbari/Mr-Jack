@@ -14,6 +14,7 @@
 
 int turnglobal = 1;
 int roundglobal = 1;
+int endglobal = 0;
 person *jackglobal;
 
 void SetColor(int ForgC)
@@ -440,36 +441,44 @@ person *FindThePerson(person *odd, person *even, char names[3])
 
 char *GetTheMove()
 {
-    char c = getchar();
+    char c1[2] = " ";
+    char *c = c1;
+    *c = getchar(); // for \n
+    *c = getchar();
     char *des = (char *)malloc(10 * sizeof(char));
     for (int i = 0; i < 10; i++)
     {
         des[i] = '\0';
     }
-    while (c != '\0' || c != '\n')
+    while (*c != '\0' || *c != '\r' || *c != '\n')
     {
-        if (c == 'u' || c == 'i' || c == 'k' || c == 'm' || c == 'n' || c == 'h' || c == 'j' || (c >= '1' && c <= '8' && des[strlen(des) - 1] == 'j'))
+        if (*c == 'u' || *c == 'i' || *c == 'k' || *c == 'm' || *c == 'n' || *c == 'h' || *c == 'j' || (*c >= '1' && *c <= '8' && des[strlen(des) - 1] == 'j'))
         {
-            strcat(des, &c);
+            strcat(des, c);
         }
-        else if (c == ' ')
+        else if (*c == ' ' || *c == '\t' || *c == '\v' || *c == '\f')
         {
             ;
+        }
+        else if (*c == '\n')
+        {
+            break;
         }
         else
         {
             printf("not a valid command, please try again using(u,i,k,m,n,h,j,1-8)");
-            char *ptr = GetTheMove();
-            strcpy(des, ptr);
+            // strcpy(des, ptr);
         }
-        c = getchar();
+        *c = getchar();
     }
-    des[strlen(des)] = '\n';
+    int t2 = strlen(des);
+    des[t2] = '\0';
     return des;
 }
 
 int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **last)
 {
+    printf("%s\n", move);
     char *ptr = move;
     int count = 0;
     cell *where = mover.place;
@@ -478,7 +487,7 @@ int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **l
     {
         total = 4;
     }
-    while (*ptr != '\n')
+    while (*ptr != '\0' && ptr != "/n")
     {
         if (*ptr == 'u')
         {
@@ -495,7 +504,7 @@ int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **l
                 }
                 else
                 {
-                    return -1;
+                    return -2;
                 }
             }
         }
@@ -504,7 +513,7 @@ int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **l
             where = where->neighbor[1];
             if (where->x == -1)
             {
-                return -1;
+                return -3;
             }
             else if (!strncmp(where->what, "apartment", 3) || !strncmp(where->what, "lamp", 3))
             {
@@ -514,7 +523,7 @@ int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **l
                 }
                 else
                 {
-                    return -1;
+                    return -4;
                 }
             }
         }
@@ -523,7 +532,7 @@ int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **l
             where = where->neighbor[2];
             if (where->x == -1)
             {
-                return -1;
+                return -5;
             }
             else if (!strncmp(where->what, "apartment", 3) || !strncmp(where->what, "lamp", 3))
             {
@@ -533,7 +542,7 @@ int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **l
                 }
                 else
                 {
-                    return -1;
+                    return -6;
                 }
             }
         }
@@ -542,7 +551,7 @@ int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **l
             where = where->neighbor[3];
             if (where->x == -1)
             {
-                return -1;
+                return -7;
             }
             else if (!strncmp(where->what, "apartment", 3) || !strncmp(where->what, "lamp", 3))
             {
@@ -552,7 +561,7 @@ int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **l
                 }
                 else
                 {
-                    return -1;
+                    return -8;
                 }
             }
         }
@@ -561,7 +570,7 @@ int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **l
             where = where->neighbor[4];
             if (where->x == -1)
             {
-                return -1;
+                return -9;
             }
             else if (!strncmp(where->what, "apartment", 3) || !strncmp(where->what, "lamp", 3))
             {
@@ -571,7 +580,7 @@ int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **l
                 }
                 else
                 {
-                    return -1;
+                    return -10;
                 }
             }
         }
@@ -580,7 +589,7 @@ int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **l
             where = where->neighbor[5];
             if (where->x == -1)
             {
-                return -1;
+                return -11;
             }
             else if (!strncmp(where->what, "apartment", 3) || !strncmp(where->what, "lamp", 3))
             {
@@ -590,7 +599,7 @@ int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **l
                 }
                 else
                 {
-                    return -1;
+                    return -12;
                 }
             }
         }
@@ -598,7 +607,7 @@ int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **l
         {
             if (strncmp(&(where->what[5]), "open", 3))
             {
-                return -1;
+                return -13;
             }
             count--;
         }
@@ -608,25 +617,31 @@ int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **l
             where = tunnel[num];
             if (strncmp(&(where->what[5]), "open", 3))
             {
-                return -1;
+                return -14;
             }
         }
-        count++;
 
+        count++;
+        ptr = ptr + 1;
         if (count > total)
         {
-            return -1;
+            printf("%d %d", count, total);
+            return -15;
         }
     }
-    if (strncmp(where->what, "side-walk", 4) && strncmp(where->what, "out1", 3))
+    if (!strncmp(where->what, "apartment", 4) || !strncmp(where->what, "lamp", 3))
     {
-        return -1;
+
+        return -16;
     }
     if (strcmp(where->who, "NU"))
     {
-        return -1;
+        return -17;
     }
-
+    if (*last == mover.place)
+    {
+        return -18;
+    }
     *last = where;
     return 1;
 }
@@ -643,56 +658,7 @@ cell *checkNear(cell *where)
     return NULL;
 }
 
-void SH_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
-{
-    cell *last;
-    person *sherlock = FindThePerson(odd, even, "SH");
-    char *m = GetTheMove();
-    int can = CanMove(map, *sherlock, m, tunnel, &last);
-    if (can == 1)
-    {
-        strcpy(sherlock->place->who, "NU");
-        sherlock->place = last;
-        strcpy(last->who, "SH");
-        sherlock->played = 1;
-        srand(time(NULL));
-        int random = rand() % 8;
-        person *pick;
-        for (int i = 0; i < random;)
-        {
-            person *ptr = odd;
-            while (ptr != NULL)
-            {
-                if (ptr->got == 0)
-                {
-                    i++;
-                    if (i == random)
-                    {
-                        pick = ptr;
-                    }
-                }
-                ptr = ptr->next;
-            }
-            ptr = even;
-            while (ptr != NULL)
-            {
-                if (ptr->got == 0)
-                {
-                    i++;
-                    if (i == random)
-                    {
-                        pick = ptr;
-                    }
-                }
-                ptr = ptr->next;
-            }
-        }
-        pick->got = 1;
-        printf("%s is innocent", pick->name);
-    }
-}
-
-void NewRound(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel[8])
+void NewRound(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel[8], cell *lamp[8])
 {
     display_map(map, *ptr_odd, *ptr_even);
     printf("choose one(write the initials-capital letter-and press enter): ");
@@ -734,7 +700,7 @@ void NewRound(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel
     }
     else if (!strncmp(chosen, "JS", 2))
     {
-        JS_play(map, tunnel, *ptr_odd, *ptr_even);
+        JS_play(map, tunnel, *ptr_odd, *ptr_even, lamp);
     }
     else if (!strncmp(chosen, "IL", 2))
     {
@@ -748,25 +714,292 @@ void NewRound(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel
     {
         SG_play(map, tunnel, *ptr_odd, *ptr_even);
     }
-    else if (!strncmp(chosen, "SG", 2))
+    else if (!strncmp(chosen, "WG", 2))
     {
         WG_play(map, tunnel, *ptr_odd, *ptr_even);
     }
-    else if (!strncmp(chosen, "SG", 2))
+    else if (!strncmp(chosen, "JB", 2))
     {
         JB_play(map, tunnel, *ptr_odd, *ptr_even);
     }
     system("cls");
     display_map(map, *ptr_odd, *ptr_even);
 }
+
+void SH_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
+{
+    printf("SH : move 1 to 3 cells : ");
+    cell *last;
+    person *sherlock = FindThePerson(odd, even, "SH");
+    char *m = GetTheMove();
+    int can = CanMove(map, *sherlock, m, tunnel, &last);
+    while (can != 1)
+    {
+        printf("\n not a correct move,try again: ");
+        m = GetTheMove();
+        can = CanMove(map, *sherlock, m, tunnel, &last);
+    }
+    if (can == 1)
+    {
+        strcpy(sherlock->place->who, "NU");
+        sherlock->place = last;
+        strcpy(last->who, "SH");
+        sherlock->played = 1;
+        srand(time(NULL));
+        int random = rand() % 8;
+        person *pick;
+        for (int i = 0; i < random;)
+        {
+            person *ptr = odd;
+            while (ptr != NULL)
+            {
+                if (ptr->got == 0)
+                {
+                    i++;
+                    if (i == random)
+                    {
+                        pick = ptr;
+                    }
+                }
+                ptr = ptr->next;
+            }
+            ptr = even;
+            while (ptr != NULL)
+            {
+                if (ptr->got == 0)
+                {
+                    i++;
+                    if (i == random)
+                    {
+                        pick = ptr;
+                    }
+                }
+                ptr = ptr->next;
+            }
+        }
+        pick->got = 1;
+        pick->guilty = 1;
+        printf("%s is innocent", pick->name);
+        return;
+    }
+}
+
 void JW_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
 {
     return;
 }
-void JS_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
+
+void JS_play(cell map[9][13], cell *tunnel[8], person *odd, person *even, cell *lamp[8])
 {
+    person *john = FindThePerson(odd, even, "JS");
+    printf("JS : choose: 1)%s           2)move 1 to 3 steps", john->ability);
+    int choice;
+    scanf("%d", &choice);
+    if (choice == 1)
+    {
+        printf("\nchoose the lamp you want to turn off(a number) : ");
+        int off;
+        scanf("%d", &off);
+        printf("\nchoose the lamp you want to turn on(a number) : ");
+        int on;
+        scanf("%d", &on);
+        while (off == on)
+        {
+            printf("lamps must be different");
+            printf("\nchoose the lamp you want to turn off(a number) : ");
+            scanf("%d", &off);
+            printf("\nchoose the lamp you want to turn on(a number) : ");
+            scanf("%d", &on);
+        }
+
+        if (off == 1)
+        {
+            strcpy(lamp[0]->what, "lamp1-off");
+        }
+        else if (off == 2)
+        {
+            strcpy(lamp[1]->what, "lamp2-off");
+        }
+        else if (off == 3)
+        {
+            strcpy(lamp[2]->what, "lamp3-off");
+        }
+        else if (off == 4)
+        {
+            strcpy(lamp[3]->what, "lamp4-off");
+        }
+        else if (off == 5)
+        {
+            strcpy(lamp[4]->what, "lamp5-off");
+        }
+        else if (off == 6)
+        {
+            strcpy(lamp[5]->what, "lamp6-off");
+        }
+        else if (off == 7)
+        {
+            strcpy(lamp[6]->what, "lamp7-off");
+        }
+        else if (off == 8)
+        {
+            strcpy(lamp[7]->what, "lamp8-on!");
+        }
+        off = on;
+        if (off == 1)
+        {
+            strcpy(lamp[0]->what, "lamp1-on!");
+        }
+        else if (off == 2)
+        {
+            strcpy(lamp[1]->what, "lamp2-on!");
+        }
+        else if (off == 3)
+        {
+            strcpy(lamp[2]->what, "lamp3-on!");
+        }
+        else if (off == 4)
+        {
+            strcpy(lamp[3]->what, "lamp4-on!");
+        }
+        else if (off == 5)
+        {
+            strcpy(lamp[4]->what, "lamp5-on!");
+        }
+        else if (off == 6)
+        {
+            strcpy(lamp[5]->what, "lamp6-on!");
+        }
+        else if (off == 7)
+        {
+            strcpy(lamp[6]->what, "lamp7-on!");
+        }
+        else if (off == 8)
+        {
+            strcpy(lamp[7]->what, "lamp8-on!");
+        }
+
+        printf("\nJS : move 1 to 3 cells : ");
+        cell *last;
+        char *m = GetTheMove();
+        int can = CanMove(map, *john, m, tunnel, &last);
+        while (can != 1)
+        {
+            printf("\n not a correct move,try again: ");
+            m = GetTheMove();
+            can = CanMove(map, *john, m, tunnel, &last);
+        }
+        if (can == 1)
+        {
+            strcpy(john->place->who, "NU");
+            john->place = last;
+            strcpy(last->who, "JW");
+            john->played = 1;
+        }
+    }
+    else if (choice == 2)
+    {
+        printf("\nJS : move 1 to 3 cells : ");
+        cell *last;
+        char *m = GetTheMove();
+        int can = CanMove(map, *john, m, tunnel, &last);
+        while (can != 1)
+        {
+            printf("\n not a correct move,try again: ");
+            m = GetTheMove();
+            can = CanMove(map, *john, m, tunnel, &last);
+        }
+        if (can == 1)
+        {
+            strcpy(john->place->who, "NU");
+            john->place = last;
+            strcpy(last->who, "JW");
+            john->played = 1;
+        }
+        printf("\nchoose the lamp you want to turn off(a number) : ");
+        int off;
+        scanf("%d", &off);
+        printf("\nchoose the lamp you want to turn on(a number) : ");
+        int on;
+        scanf("%d", &on);
+        while (off == on)
+        {
+            printf("lamps must be different");
+            printf("\nchoose the lamp you want to turn off(a number) : ");
+            scanf("%d", &off);
+            printf("\nchoose the lamp you want to turn on(a number) : ");
+            scanf("%d", &on);
+        }
+
+        if (off == 1)
+        {
+            strcpy(lamp[0]->what, "lamp1-off");
+        }
+        else if (off == 2)
+        {
+            strcpy(lamp[1]->what, "lamp2-off");
+        }
+        else if (off == 3)
+        {
+            strcpy(lamp[2]->what, "lamp3-off");
+        }
+        else if (off == 4)
+        {
+            strcpy(lamp[3]->what, "lamp4-off");
+        }
+        else if (off == 5)
+        {
+            strcpy(lamp[4]->what, "lamp5-off");
+        }
+        else if (off == 6)
+        {
+            strcpy(lamp[5]->what, "lamp6-off");
+        }
+        else if (off == 7)
+        {
+            strcpy(lamp[6]->what, "lamp7-off");
+        }
+        else if (off == 8)
+        {
+            strcpy(lamp[7]->what, "lamp8-on!");
+        }
+        off = on;
+        if (off == 1)
+        {
+            strcpy(lamp[0]->what, "lamp1-on!");
+        }
+        else if (off == 2)
+        {
+            strcpy(lamp[1]->what, "lamp2-on!");
+        }
+        else if (off == 3)
+        {
+            strcpy(lamp[2]->what, "lamp3-on!");
+        }
+        else if (off == 4)
+        {
+            strcpy(lamp[3]->what, "lamp4-on!");
+        }
+        else if (off == 5)
+        {
+            strcpy(lamp[4]->what, "lamp5-on!");
+        }
+        else if (off == 6)
+        {
+            strcpy(lamp[5]->what, "lamp6-on!");
+        }
+        else if (off == 7)
+        {
+            strcpy(lamp[6]->what, "lamp7-on!");
+        }
+        else if (off == 8)
+        {
+            strcpy(lamp[7]->what, "lamp8-on!");
+        }
+    }
+
     return;
 }
+
 void IL_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
 {
     return;
@@ -785,10 +1018,219 @@ void WG_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
 }
 void JB_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
 {
+    person *jeremy = FindThePerson(odd, even, "JB");
+    printf("JB : choose: 1)%s           2)move 1 to 3 steps", jeremy->ability);
+    int choice;
+    scanf("%d", &choice);
+    if (choice == 1)
+    {
+        printf("\nchoose the tunnel you want to close(a number) : ");
+        int off;
+        scanf("%d", &off);
+        printf("\nchoose the tunnel you want to open(a number) : ");
+        int on;
+        scanf("%d", &on);
+        while (off == on)
+        {
+            printf("tunnels must be different");
+            printf("\nchoose the tunnel you want to turn off(a number) : ");
+            scanf("%d", &off);
+            printf("\nchoose the tunnel you want to turn on(a number) : ");
+            scanf("%d", &on);
+        }
+
+        if (off == 1)
+        {
+            strcpy(tunnel[0]->what, "tnl1-clsd");
+        }
+        else if (off == 2)
+        {
+            strcpy(tunnel[1]->what, "tnl2-clsd");
+        }
+        else if (off == 3)
+        {
+            strcpy(tunnel[2]->what, "tnl3-clsd");
+        }
+        else if (off == 4)
+        {
+            strcpy(tunnel[3]->what, "tnl4-clsd");
+        }
+        else if (off == 5)
+        {
+            strcpy(tunnel[4]->what, "tnl5-clsd");
+        }
+        else if (off == 6)
+        {
+            strcpy(tunnel[5]->what, "tnl6-clsd");
+        }
+        else if (off == 7)
+        {
+            strcpy(tunnel[6]->what, "tnl7-clsd");
+        }
+        else if (off == 8)
+        {
+            strcpy(tunnel[7]->what, "tnl8-clsd");
+        }
+        off = on;
+        if (off == 1)
+        {
+            strcpy(tunnel[0]->what, "tnl1-open");
+        }
+        else if (off == 2)
+        {
+            strcpy(tunnel[1]->what, "tnl2-open");
+        }
+        else if (off == 3)
+        {
+            strcpy(tunnel[2]->what, "tnl3-open");
+        }
+        else if (off == 4)
+        {
+            strcpy(tunnel[3]->what, "tnl4-open");
+        }
+        else if (off == 5)
+        {
+            strcpy(tunnel[4]->what, "tnl5-open");
+        }
+        else if (off == 6)
+        {
+            strcpy(tunnel[5]->what, "tnl6-open");
+        }
+        else if (off == 7)
+        {
+            strcpy(tunnel[6]->what, "tnl7-open");
+        }
+        else if (off == 8)
+        {
+            strcpy(tunnel[7]->what, "tnl8-open");
+        }
+
+        printf("\nJB : move 1 to 3 cells : ");
+        cell *last;
+        char *m = GetTheMove();
+        int can = CanMove(map, *jeremy, m, tunnel, &last);
+        while (can != 1)
+        {
+            printf("%d\n", can);
+            printf("\n not a correct move,try again: ");
+            m = GetTheMove();
+            can = CanMove(map, *jeremy, m, tunnel, &last);
+        }
+        if (can == 1)
+        {
+            strcpy(jeremy->place->who, "NU");
+            jeremy->place = last;
+            strcpy(last->who, "JB");
+            jeremy->played = 1;
+        }
+    }
+    else if (choice == 2)
+    {
+        printf("\nJB : move 1 to 3 cells : ");
+        cell *last;
+        char *m = GetTheMove();
+        int can = CanMove(map, *jeremy, m, tunnel, &last);
+        while (can != 1)
+        {
+            printf("\n not a correct move,try again: ");
+            m = GetTheMove();
+            can = CanMove(map, *jeremy, m, tunnel, &last);
+        }
+        if (can == 1)
+        {
+            strcpy(jeremy->place->who, "NU");
+            jeremy->place = last;
+            strcpy(last->who, "JB");
+            jeremy->played = 1;
+        }
+        printf("\nchoose the tunnel you want to close(a number) : ");
+        int off;
+        scanf("%d", &off);
+        printf("\nchoose the tunnel you want to open(a number) : ");
+        int on;
+        scanf("%d", &on);
+        while (off == on)
+        {
+            printf("tunnels must be different");
+            printf("\nchoose the tunnel you want to turn off(a number) : ");
+            scanf("%d", &off);
+            printf("\nchoose the tunnel you want to turn on(a number) : ");
+            scanf("%d", &on);
+        }
+
+        if (off == 1)
+        {
+            strcpy(tunnel[0]->what, "tnl1-clsd");
+        }
+        else if (off == 2)
+        {
+            strcpy(tunnel[1]->what, "tnl2-clsd");
+        }
+        else if (off == 3)
+        {
+            strcpy(tunnel[2]->what, "tnl3-clsd");
+        }
+        else if (off == 4)
+        {
+            strcpy(tunnel[3]->what, "tnl4-clsd");
+        }
+        else if (off == 5)
+        {
+            strcpy(tunnel[4]->what, "tnl5-clsd");
+        }
+        else if (off == 6)
+        {
+            strcpy(tunnel[5]->what, "tnl6-clsd");
+        }
+        else if (off == 7)
+        {
+            strcpy(tunnel[6]->what, "tnl7-clsd");
+        }
+        else if (off == 8)
+        {
+            strcpy(tunnel[7]->what, "tnl8-clsd");
+        }
+        off = on;
+        if (off == 1)
+        {
+            strcpy(tunnel[0]->what, "tnl1-open");
+        }
+        else if (off == 2)
+        {
+            strcpy(tunnel[1]->what, "tnl2-open");
+        }
+        else if (off == 3)
+        {
+            strcpy(tunnel[2]->what, "tnl3-open");
+        }
+        else if (off == 4)
+        {
+            strcpy(tunnel[3]->what, "tnl4-open");
+        }
+        else if (off == 5)
+        {
+            strcpy(tunnel[4]->what, "tnl5-open");
+        }
+        else if (off == 6)
+        {
+            strcpy(tunnel[5]->what, "tnl6-open");
+        }
+        else if (off == 7)
+        {
+            strcpy(tunnel[6]->what, "tnl7-open");
+        }
+        else if (off == 8)
+        {
+            strcpy(tunnel[7]->what, "tnl8-open");
+        }
+    }
+    display_map(map, odd, even);
+    int n;
+    scanf("%d", &n);
     return;
 }
 
-void MainMenu(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel[8])
+void MainMenu(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel[8], cell *lamp[8])
 {
     system("cls");
     SetColor(3);
@@ -836,6 +1278,6 @@ void MainMenu(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel
         pick->guilty = -1;
         getchar();
         system("cls");
-        NewRound(map, ptr_odd, ptr_even, tunnel);
+        NewRound(map, ptr_odd, ptr_even, tunnel, lamp);
     }
 }
