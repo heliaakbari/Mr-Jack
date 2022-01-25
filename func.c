@@ -4,19 +4,24 @@
 #include <dos.h>
 #include <dir.h>
 #include <string.h>
+#include "func.h"
 #include <time.h>
 #include <conio.h>
-#include "func.h"
 #define wallc 8
 #define whatc 2
 #define watchc 1
 #define whoc 3
 
 int turnglobal = 1;
-int roundglobal = 1;
 int endglobal = 0;
+int roundglobal = 1;
 person *jackglobal;
-
+person *odd;
+person *even;
+cell map[9][13];
+cell *out[] = {&map[0][1], &map[0][11], &map[8][1], &map[8][11]};
+cell *tunnel[] = {&map[3][0], &map[0][5], &map[3][5], &map[5][7], &map[5][12], &map[8][7], &map[1][11], &map[7][2]};
+cell *lamp[] = {&map[6][1], &map[2][11], &map[2][2], &map[7][10], &map[3][7], &map[5][5], &map[7][7], &map[1][5]};
 void SetColor(int ForgC)
 {
     WORD wColor;
@@ -34,7 +39,7 @@ void SetColor(int ForgC)
     return;
 }
 
-void display_map(cell map[9][13], person *odd, person *even)
+void display_map()
 {
     SetColor(wallc);
 
@@ -242,7 +247,7 @@ void display_map(cell map[9][13], person *odd, person *even)
     return;
 }
 
-void GetDeafultGame(cell map[9][13])
+void GetDeafultGame()
 {
     FILE *fp = fopen("newgame.bin", "rb");
     int a = sizeof(map[0][0].what), b = sizeof(map[0][0].watch), c = sizeof(map[0][0].who);
@@ -268,93 +273,88 @@ void GetDeafultGame(cell map[9][13])
     return;
 }
 
-void create_cards(person **ptr_odd, person **ptr_even, cell map[9][13])
+void create_cards()
 {
-    person *list1 = (person *)malloc(sizeof(person));
-    person *odd = list1;
-    strncpy(odd->name, "SH", 3);
-    odd->played = 0;
-    odd->got = 0;
-    odd->watch = 1;
-    odd->guilty = 0;
-    odd->place = &map[6][6];
-    strcpy(odd->ability, "identify an innocent");
-    odd->next = (person *)malloc(sizeof(person));
-    odd = odd->next;
-    strncpy(odd->name, "JW", 3);
-    odd->played = 0;
-    odd->got = 0;
-    odd->guilty = 0;
-    odd->watch = 0;
-    odd->place = &map[5][0];
-    strcpy(odd->ability, "iluminate 1 direction");
-    odd->next = (person *)malloc(sizeof(person));
-    odd = odd->next;
-    strncpy(odd->name, "JS", 3);
-    odd->played = 0;
-    odd->got = 0;
-    odd->guilty = 0;
-    odd->watch = 1;
-    odd->place = &map[3][6];
-    strcpy(odd->ability, "turn off 1 lamp and turn on another");
-    odd->next = (person *)malloc(sizeof(person));
-    odd = odd->next;
-    strncpy(odd->name, "IL", 3);
-    odd->played = 0;
-    odd->got = 0;
-    odd->guilty = 0;
-    odd->watch = 1;
-    odd->place = &map[5][4];
-    strcpy(odd->ability, "open 1 exit and close another");
-    odd->next = NULL;
-    *ptr_odd = list1;
-
-    person *list2 = (person *)malloc(sizeof(person));
-    odd = list2;
-    strncpy(odd->name, "MS", 3);
-    odd->played = 0;
-    odd->got = 0;
-    odd->guilty = 0;
-    odd->watch = 0;
-    odd->place = &map[8][8];
-    strcpy(odd->ability, "move through apartments but can't stop in them");
-    odd->next = (person *)malloc(sizeof(person));
-    odd = odd->next;
-    strncpy(odd->name, "SG", 3);
-    odd->played = 0;
-    odd->watch = 0;
-    odd->guilty = 0;
-    odd->got = 0;
-    odd->place = &map[4][12];
-    strcpy(odd->ability, "call chracter(s) 3 cells closer to himself");
-    odd->next = (person *)malloc(sizeof(person));
-    odd = odd->next;
-    strncpy(odd->name, "WG", 3);
-    odd->played = 0;
-    odd->guilty = 0;
-    odd->got = 0;
-    odd->watch = 0;
-    odd->place = &map[0][4];
-    strcpy(odd->ability, "change place with another chracter");
-    odd->next = (person *)malloc(sizeof(person));
-    odd = odd->next;
-    strncpy(odd->name, "JB", 3);
-    odd->played = 0;
-    odd->guilty = 0;
-    odd->got = 0;
-    odd->watch = 1;
-    odd->place = &map[4][8];
-    strcpy(odd->ability, "open 1 tunnel and close another");
-    odd->next = NULL;
-    *ptr_even = list2;
+    odd = (person *)malloc(sizeof(person));
+    person *tptr = odd;
+    strncpy(tptr->name, "SH", 3);
+    tptr->played = 0;
+    tptr->got = 0;
+    tptr->watch = 1;
+    tptr->guilty = 0;
+    tptr->place = &map[6][6];
+    strcpy(tptr->ability, "identify an innocent");
+    tptr->next = (person *)malloc(sizeof(person));
+    tptr = tptr->next;
+    strncpy(tptr->name, "JW", 3);
+    tptr->played = 0;
+    tptr->got = 0;
+    tptr->guilty = 0;
+    tptr->watch = 0;
+    tptr->place = &map[5][0];
+    strcpy(tptr->ability, "iluminate 1 direction");
+    tptr->next = (person *)malloc(sizeof(person));
+    tptr = tptr->next;
+    strncpy(tptr->name, "JS", 3);
+    tptr->played = 0;
+    tptr->got = 0;
+    tptr->guilty = 0;
+    tptr->watch = 1;
+    tptr->place = &map[3][6];
+    strcpy(tptr->ability, "turn off 1 lamp and turn on another");
+    tptr->next = (person *)malloc(sizeof(person));
+    tptr = tptr->next;
+    strncpy(tptr->name, "IL", 3);
+    tptr->played = 0;
+    tptr->got = 0;
+    tptr->guilty = 0;
+    tptr->watch = 1;
+    tptr->place = &map[5][4];
+    strcpy(tptr->ability, "open 1 exit and close another");
+    tptr->next = NULL;
+    even = (person *)malloc(sizeof(person));
+    tptr = even;
+    strncpy(tptr->name, "MS", 3);
+    tptr->played = 0;
+    tptr->got = 0;
+    tptr->guilty = 0;
+    tptr->watch = 0;
+    tptr->place = &map[8][8];
+    strcpy(tptr->ability, "move through apartments but can't stop in them");
+    tptr->next = (person *)malloc(sizeof(person));
+    tptr = tptr->next;
+    strncpy(tptr->name, "SG", 3);
+    tptr->played = 0;
+    tptr->watch = 0;
+    tptr->guilty = 0;
+    tptr->got = 0;
+    tptr->place = &map[4][12];
+    strcpy(tptr->ability, "call chracter(s) 3 cells closer to himself");
+    tptr->next = (person *)malloc(sizeof(person));
+    tptr = tptr->next;
+    strncpy(tptr->name, "WG", 3);
+    tptr->played = 0;
+    tptr->guilty = 0;
+    tptr->got = 0;
+    tptr->watch = 0;
+    tptr->place = &map[0][4];
+    strcpy(tptr->ability, "change place with another chracter");
+    tptr->next = (person *)malloc(sizeof(person));
+    tptr = tptr->next;
+    strncpy(tptr->name, "JB", 3);
+    tptr->played = 0;
+    tptr->guilty = 0;
+    tptr->got = 0;
+    tptr->watch = 1;
+    tptr->place = &map[4][8];
+    strcpy(tptr->ability, "open 1 tunnel and close another");
+    tptr->next = NULL;
     return;
 }
 
-void shuffle(person **ptr_odd, person **ptr_even)
+void shuffle()
 {
     // srand(time(NULL));
-    person *odd = *ptr_odd;
-    person *even = *ptr_even;
     int count_odd = 0;
     int count_even = 0;
     person *ar1[4], *ar2[4], *ar[8];
@@ -393,13 +393,12 @@ void shuffle(person **ptr_odd, person **ptr_even)
 
     (ar1[3])->next = NULL;
     (ar2[3])->next = NULL;
-    *ptr_odd = ar1[0];
-    *ptr_even = ar2[0];
-
+    even = ar1[0];
+    odd = ar2[0];
     return;
 }
 
-void printfcard(person *odd, person *even)
+void printfcard()
 {
     person *ptr = odd;
     while (ptr != NULL)
@@ -416,7 +415,7 @@ void printfcard(person *odd, person *even)
     return;
 }
 
-person *FindThePerson(person *odd, person *even, char names[3])
+person *FindThePerson(char names[3])
 {
     person *ptr = odd;
     while (ptr != NULL)
@@ -476,7 +475,7 @@ char *GetTheMove()
     return des;
 }
 
-int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **last)
+int CanMove(person mover, char *move, cell **last)
 {
     printf("%s\n", move);
     char *ptr = move;
@@ -658,14 +657,14 @@ cell *checkNear(cell *where)
     return NULL;
 }
 
-void NewRound(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel[8], cell *lamp[8])
+void NewRound()
 {
-    display_map(map, *ptr_odd, *ptr_even);
+    display_map();
     printf("choose one(write the initials-capital letter-and press enter): ");
     if (roundglobal % 2 == 1)
     {
-        shuffle(ptr_odd, ptr_even);
-        person *ptr = *ptr_odd;
+        shuffle();
+        person *ptr = odd;
         while (ptr != NULL)
         {
             if (ptr->played == 0)
@@ -677,7 +676,7 @@ void NewRound(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel
     }
     else
     { // round%2==0
-        person *ptr = *ptr_even;
+        person *ptr = even;
         while (ptr != NULL)
         {
             if (ptr->played == 0)
@@ -692,52 +691,52 @@ void NewRound(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel
     scanf(" %s", chosen);
     if (!strncmp(chosen, "SH", 2))
     {
-        SH_play(map, tunnel, *ptr_odd, *ptr_even);
+        SH_play();
     }
     else if (!strncmp(chosen, "JW", 2))
     {
-        JW_play(map, tunnel, *ptr_odd, *ptr_even);
+        JW_play();
     }
     else if (!strncmp(chosen, "JS", 2))
     {
-        JS_play(map, tunnel, *ptr_odd, *ptr_even, lamp);
+        JS_play();
     }
     else if (!strncmp(chosen, "IL", 2))
     {
-        IL_play(map, tunnel, *ptr_odd, *ptr_even);
+        IL_play();
     }
     else if (!strncmp(chosen, "MS", 2))
     {
-        MS_play(map, tunnel, *ptr_odd, *ptr_even);
+        MS_play();
     }
     else if (!strncmp(chosen, "SG", 2))
     {
-        SG_play(map, tunnel, *ptr_odd, *ptr_even);
+        SG_play();
     }
     else if (!strncmp(chosen, "WG", 2))
     {
-        WG_play(map, tunnel, *ptr_odd, *ptr_even);
+        WG_play();
     }
     else if (!strncmp(chosen, "JB", 2))
     {
-        JB_play(map, tunnel, *ptr_odd, *ptr_even);
+        JB_play();
     }
     system("cls");
-    display_map(map, *ptr_odd, *ptr_even);
+    display_map();
 }
 
-void SH_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
+void SH_play()
 {
     printf("SH : move 1 to 3 cells : ");
     cell *last;
-    person *sherlock = FindThePerson(odd, even, "SH");
+    person *sherlock = FindThePerson("SH");
     char *m = GetTheMove();
-    int can = CanMove(map, *sherlock, m, tunnel, &last);
+    int can = CanMove(*sherlock, m, &last);
     while (can != 1)
     {
         printf("\n not a correct move,try again: ");
         m = GetTheMove();
-        can = CanMove(map, *sherlock, m, tunnel, &last);
+        can = CanMove(*sherlock, m, &last);
     }
     if (can == 1)
     {
@@ -784,14 +783,14 @@ void SH_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
     }
 }
 
-void JW_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
+void JW_play()
 {
     return;
 }
 
-void JS_play(cell map[9][13], cell *tunnel[8], person *odd, person *even, cell *lamp[8])
+void JS_play()
 {
-    person *john = FindThePerson(odd, even, "JS");
+    person *john = FindThePerson("JS");
     printf("JS : choose: 1)%s           2)move 1 to 3 steps", john->ability);
     int choice;
     scanf("%d", &choice);
@@ -881,12 +880,12 @@ void JS_play(cell map[9][13], cell *tunnel[8], person *odd, person *even, cell *
         printf("\nJS : move 1 to 3 cells : ");
         cell *last;
         char *m = GetTheMove();
-        int can = CanMove(map, *john, m, tunnel, &last);
+        int can = CanMove(*john, m, &last);
         while (can != 1)
         {
             printf("\n not a correct move,try again: ");
             m = GetTheMove();
-            can = CanMove(map, *john, m, tunnel, &last);
+            can = CanMove(*john, m, &last);
             printf("%d", can);
         }
         if (can == 1)
@@ -902,12 +901,12 @@ void JS_play(cell map[9][13], cell *tunnel[8], person *odd, person *even, cell *
         printf("\nJS : move 1 to 3 cells : ");
         cell *last;
         char *m = GetTheMove();
-        int can = CanMove(map, *john, m, tunnel, &last);
+        int can = CanMove(*john, m, &last);
         while (can != 1)
         {
             printf("\n not a correct move,try again: ");
             m = GetTheMove();
-            can = CanMove(map, *john, m, tunnel, &last);
+            can = CanMove(*john, m, &last);
         }
         if (can == 1)
         {
@@ -1001,25 +1000,25 @@ void JS_play(cell map[9][13], cell *tunnel[8], person *odd, person *even, cell *
     return;
 }
 
-void IL_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
+void IL_play()
 {
     return;
 }
-void MS_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
+void MS_play()
 {
     return;
 }
-void SG_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
+void SG_play()
 {
     return;
 }
-void WG_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
+void WG_play()
 {
     return;
 }
-void JB_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
+void JB_play()
 {
-    person *jeremy = FindThePerson(odd, even, "JB");
+    person *jeremy = FindThePerson("JB");
     printf("JB : choose: 1)%s           2)move 1 to 3 steps", jeremy->ability);
     int choice;
     scanf("%d", &choice);
@@ -1109,13 +1108,13 @@ void JB_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
         printf("\nJB : move 1 to 3 cells : ");
         cell *last;
         char *m = GetTheMove();
-        int can = CanMove(map, *jeremy, m, tunnel, &last);
+        int can = CanMove(*jeremy, m, &last);
         while (can != 1)
         {
             printf("%d\n", can);
             printf("\n not a correct move,try again: ");
             m = GetTheMove();
-            can = CanMove(map, *jeremy, m, tunnel, &last);
+            can = CanMove(*jeremy, m, &last);
         }
         if (can == 1)
         {
@@ -1130,12 +1129,12 @@ void JB_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
         printf("\nJB : move 1 to 3 cells : ");
         cell *last;
         char *m = GetTheMove();
-        int can = CanMove(map, *jeremy, m, tunnel, &last);
+        int can = CanMove(*jeremy, m, &last);
         while (can != 1)
         {
             printf("\n not a correct move,try again: ");
             m = GetTheMove();
-            can = CanMove(map, *jeremy, m, tunnel, &last);
+            can = CanMove(*jeremy, m, &last);
         }
         if (can == 1)
         {
@@ -1231,7 +1230,7 @@ void JB_play(cell map[9][13], cell *tunnel[8], person *odd, person *even)
     return;
 }
 
-void MainMenu(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel[8], cell *lamp[8])
+void MainMenu()
 {
     system("cls");
     SetColor(3);
@@ -1247,14 +1246,14 @@ void MainMenu(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel
     getchar();
     if (temp == 2)
     {
-        create_cards(ptr_odd, ptr_even, map);
-        shuffle(ptr_odd, ptr_even);
-        GetDeafultGame(map);
+        create_cards();
+        shuffle();
+        GetDeafultGame();
         system("cls");
         printf("It is Jack's turn. Jack please press 1 to see your identity\n");
         srand(time(NULL));
         int random = rand() % 8;
-        person *pick = *ptr_odd;
+        person *pick = odd;
         if (random <= 3)
         {
             for (int i = 0; i < random; i++)
@@ -1264,7 +1263,7 @@ void MainMenu(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel
         }
         else
         {
-            pick = *ptr_even;
+            pick = even;
             for (int i = 4; i < random; i++)
             {
                 pick = pick->next;
@@ -1279,6 +1278,6 @@ void MainMenu(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel
         pick->guilty = -1;
         getchar();
         system("cls");
-        NewRound(map, ptr_odd, ptr_even, tunnel, lamp);
+        NewRound();
     }
 }

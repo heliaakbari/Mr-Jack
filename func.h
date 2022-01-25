@@ -11,7 +11,6 @@ typedef struct sell
 
 } cell;
 
-void SetColor(int ForgC);
 typedef struct node
 {
     char name[3];
@@ -23,22 +22,42 @@ typedef struct node
     char ability[100]; // for the user
     struct node *next; // for linked list
 } person;
-void MainMenu(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel[8], cell *lamp[8]);
-void create_cards(person **ptr_odd, person **ptr_even, cell map[9][13]);
-void shuffle(person **ptr_odd, person **ptr_even);
-void printfcard(person *odd, person *even);
-void NewRound(cell map[9][13], person **ptr_odd, person **ptr_even, cell *tunnel[8] ,cell *lamp[8]);
-person *FindThePerson(person *odd, person *even, char names[3]);
-int CanMove(cell map[9][13], person mover, char *move, cell *tunnel[8], cell **last);
+
+extern int turnglobal;
+
+extern int roundglobal;
+
+extern int endglobal;
+
+extern person *jackglobal;
+
+extern person *odd;
+
+extern person *even;
+
+extern cell map[9][13];
+extern cell * out[4];
+extern cell *tunnel[8];
+extern cell *lamp[8];
+void SetColor(int ForgC);
+
+void MainMenu();
+void create_cards();
+void shuffle();
+void printfcard();
+void NewRound();
+person *FindThePerson(char names[3]);
+int CanMove(person mover, char *move, cell **last);
 char *GetTheMove();
-void SH_play(cell map[9][13], cell *tunnel[8], person *odd, person *even);
-void JW_play(cell map[9][13], cell *tunnel[8], person *odd, person *even);
-void JS_play(cell map[9][13], cell *tunnel[8], person *odd, person *even, cell *lamp[8]);
-void IL_play(cell map[9][13], cell *tunnel[8], person *odd, person *even);
-void MS_play(cell map[9][13], cell *tunnel[8], person *odd, person *even);
-void SG_play(cell map[9][13], cell *tunnel[8], person *odd, person *even);
-void WG_play(cell map[9][13], cell *tunnel[8], person *odd, person *even);
-void JB_play(cell map[9][13], cell *tunnel[8], person *odd, person *even);
-void display_map(cell map[9][13], person *odd, person *even);
-void GetDeafultGame(cell map[9][13]);
+cell *checkNear(cell *where);
+void SH_play();
+void JW_play();
+void JS_play();
+void IL_play();
+void MS_play();
+void SG_play();
+void WG_play();
+void JB_play();
+void display_map();
+void GetDeafultGame();
 #endif
