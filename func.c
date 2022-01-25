@@ -887,12 +887,13 @@ void JS_play(cell map[9][13], cell *tunnel[8], person *odd, person *even, cell *
             printf("\n not a correct move,try again: ");
             m = GetTheMove();
             can = CanMove(map, *john, m, tunnel, &last);
+            printf("%d", can);
         }
         if (can == 1)
         {
             strcpy(john->place->who, "NU");
             john->place = last;
-            strcpy(last->who, "JW");
+            strcpy(last->who, "JS");
             john->played = 1;
         }
     }
@@ -912,7 +913,7 @@ void JS_play(cell map[9][13], cell *tunnel[8], person *odd, person *even, cell *
         {
             strcpy(john->place->who, "NU");
             john->place = last;
-            strcpy(last->who, "JW");
+            strcpy(last->who, "JS");
             john->played = 1;
         }
         printf("\nchoose the lamp you want to turn off(a number) : ");
