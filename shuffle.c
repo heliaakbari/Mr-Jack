@@ -3,7 +3,7 @@
 #include <windows.h>
 #include <string.h>
 #include <time.h>
-
+/*
 typedef struct sell
 {
     char what[10];
@@ -173,7 +173,7 @@ void printfcard(person *odd, person *even)
     return;
 }
 
-//
+
 
 int main()
 {
@@ -188,4 +188,10 @@ int main()
         printf("\n");
     }
     return 0;
+}
+*/
+int main()
+{
+    char des[] = "absd";
+    printf("%d", strlen(des));
 }

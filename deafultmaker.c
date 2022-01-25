@@ -6,23 +6,24 @@ int main()
     FILE *fp = fopen("newgame.bin", "wb");
     if (fp == NULL)
     {
+        printf("file dont exist");
         return -1;
     }
     char what[10];
     char watch[4];
     char who[3];
     int x;
-    int gar1, gar2;
-    printf("hello");
+    int cor1, cor2;
     for (int i = 0; i < 9; i++)
     {
         for (int j = 0; j < 13; j++)
         {
-            printf("enter what(9) watch(3) who(2) for [%d][%d]\n", i, j);
-            scanf("%d%d", &gar1, &gar2);
+            scanf("%d%d", &cor1, &cor2);
             scanf("%s", what);
             scanf("%s", watch);
             scanf("%s", who);
+            fwrite(&cor1, sizeof(int), 1, fp);
+            fwrite(&cor2, sizeof(int), 1, fp);
             fwrite(what, sizeof(char), 10, fp);
             fwrite(watch, sizeof(char), 4, fp);
             fwrite(who, sizeof(char), 3, fp);

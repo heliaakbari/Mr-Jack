@@ -1,21 +1,15 @@
 #include <stdio.h>
 #include "func.h"
-#include <conio.h>
 #include <string.h>
-cell map[9][13];
+#include <stdlib.h>
 
 int main()
 {
-    GetDeafultGame(map);
-    display_map(map);
-    person *odd, *even;
-    create_cards(&odd, &even, map);
-    for (int i = 0; i < 5; i++)
-    {
-        shuffle(&odd, &even);
-        printfcard(odd, even);
-        printf("\n");
-    }
+    person *odd = (person *)malloc(sizeof(person));
+    person *even = (person *)malloc(sizeof(person));
+    cell map[9][13];
+    cell *tunnel[8] = {&map[3][0], &map[0][5], &map[3][5], &map[5][7], &map[5][12], &map[8][7], &map[7][11], &map[7][2]};
+    MainMenu(map, &odd, &even, tunnel);
     getchar();
     return 0;
 }
