@@ -7,15 +7,12 @@
 #include "func.h"
 #include <time.h>
 #include <conio.h>
-#define wallc 8
-#define whatc 2
-#define watchc 1
-#define whoc 3
-
+extern int jackvisibility = 0;
 int turnglobal = 1;
 int endglobal = 0;
 int roundglobal = 1;
 person *jackglobal;
+int johndirection = 3;
 person *odd;
 person *even;
 cell map[9][13];
@@ -39,193 +36,190 @@ void SetColor(int ForgC)
     return;
 }
 
+void paint(char *str)
+{
+    enum color
+    {
+        black,
+        blue,
+        green,
+        cyan,
+        red,
+        magenta,
+        brown,
+        lightgray,
+        darkgray,
+        lightblue,
+        lightgreen,
+        lightcyan,
+        lightred,
+        lightmagenta,
+        yellow
+    };
+    if (!strncmp(str, "apartment", 4))
+        SetColor(blue);
+    else if (!strncmp(str, "lamp", 4))
+        SetColor(yellow);
+    else if (!strncmp(str, "side", 4))
+        SetColor(black);
+    else if (!strncmp(&str[5], "clsd", 3) && !strncmp(str, "tnl", 3))
+        SetColor(red);
+    else if (!strncmp(&str[5], "open", 3) && !strncmp(str, "tnl", 3))
+        SetColor(lightred);
+    else if (!strncmp(str, "on!", 3))
+        SetColor(brown);
+    else if (!strncmp(str, "off", 3))
+        SetColor(black);
+    else if (!strncmp(str, "out", 3))
+        SetColor(lightcyan);
+    else if (!strncmp(str, "NU", 2))
+        SetColor(black);
+    else if (strlen(str) == 2)
+    {
+        SetColor(lightgreen);
+    }
+    printf("%s", str);
+    SetColor(blue);
+}
 void display_map()
 {
-    SetColor(wallc);
+    SetColor(1);
 
     for (int i = 0; i < 8; i++)
     {
         for (int j = 0; j < 12; j = j + 2)
         {
             printf("/");
-            SetColor(whatc);
-            printf("%s", map[i][j].what);
-            SetColor(wallc);
+            paint(map[i][j].what);
             printf("\\_______");
         }
         printf("/");
-        SetColor(whatc);
-        printf("%s", map[i][12].what);
-        SetColor(wallc);
+        paint(map[i][12].what);
         printf("\\");
         printf("\n");
 
         for (int j = 0; j < 12; j = j + 2)
         {
             printf("\\   ");
-            if (!strcmp(map[i][j].who, "NU"))
-            {
-                SetColor(0);
-            }
-            else
-            {
-                SetColor(whoc);
-            }
-            printf("%s", map[i][j].who);
-            SetColor(wallc);
+            paint(map[i][j].who);
             printf("    /  ");
-            SetColor(watchc);
-            printf("%s", map[i][j + 1].watch);
-            SetColor(wallc);
+            paint(map[i][j + 1].watch);
             printf("  ");
         }
         printf("\\   ");
-        if (!strcmp(map[i][12].who, "NU"))
-        {
-            SetColor(0);
-        }
-        else
-        {
-            SetColor(whoc);
-        }
-        printf("%s", map[i][12].who);
-        SetColor(wallc);
+        paint(map[i][12].who);
         printf("    /  ");
         printf("\n");
         printf(" ");
         for (int j = 0; j < 12; j = j + 2)
         {
             printf("\\_______/");
-            SetColor(whatc);
-            printf("%s", map[i][j + 1].what);
-            SetColor(wallc);
+            paint(map[i][j + 1].what);
         }
         printf("\\_______/");
         printf("\n");
         for (int j = 0; j < 12; j = j + 2)
         {
             printf(" /  ");
-            SetColor(watchc);
-            printf("%s", map[i + 1][j].watch);
-            SetColor(wallc);
+            paint(map[i + 1][j].watch);
             printf("  \\   ");
-            if (!strcmp(map[i][j + 1].who, "NU"))
-            {
-                SetColor(0);
-            }
-            else
-            {
-                SetColor(whoc);
-            }
-            printf("%s", map[i][j + 1].who);
-            SetColor(wallc);
+            paint(map[i][j + 1].who);
             printf("   ");
         }
         printf(" /  ");
-        SetColor(watchc);
-        printf("%s", map[i + 1][12].watch);
-        SetColor(wallc);
+        paint(map[i + 1][12].watch);
         printf("  \\  ");
         printf("\n");
     }
     for (int j = 0; j < 12; j = j + 2)
     {
         printf("/");
-        SetColor(whatc);
-        printf("%s", map[8][j].what);
-        SetColor(wallc);
+        paint(map[8][j].what);
         printf("\\_______");
     }
     printf("/");
-    SetColor(whatc);
-    printf("%s", map[8][12].what);
-    SetColor(wallc);
+    paint(map[8][12].what);
     printf("\\");
-
+    SetColor(15);
     if (turnglobal % 8 == 1 || turnglobal % 8 == 4 || turnglobal % 8 == 6 || turnglobal % 8 == 7)
     {
-        printf("  Detective's turn(round%d,turn%d)", roundglobal, turnglobal);
+        printf("    Detective's turn(round%d,turn%d)", roundglobal, turnglobal);
     }
     else
     {
-        printf("  Jacks's turn(round%d,turn%d)", roundglobal, turnglobal);
+        printf("    Jacks's turn(round%d,turn%d)", roundglobal, turnglobal);
     }
     printf("\n");
+    SetColor(1);
     for (int j = 0; j < 12; j = j + 2)
     {
         printf("\\   ");
-        if (!strcmp(map[8][j].who, "NU"))
-        {
-            SetColor(0);
-        }
-        else
-        {
-            SetColor(whoc);
-        }
-        printf("%s", map[8][j].who);
-        SetColor(wallc);
+
+        paint(map[8][j].who);
         printf("    /  ");
-        SetColor(watchc);
-        printf("%s", map[8][j + 1].watch);
-        SetColor(wallc);
+        paint(map[8][j + 1].watch);
         printf("  ");
     }
     printf("\\  ");
-    if (!strcmp(map[8][12].who, "NU"))
-    {
-        SetColor(0);
-    }
-    else
-    {
-        SetColor(whoc);
-    }
-    printf("%s", map[8][12].who);
-    SetColor(wallc);
+    paint(map[8][12].who);
     printf("     /  ");
+    SetColor(15);
     if (roundglobal == 1 && turnglobal == 1)
     {
-        printf("    Jack is visible");
+        printf("  Jack is visible");
     }
     else
     {
         if (jackglobal->watch == 0)
         {
-            printf("    Jack is invisible");
+            printf("  Jack is invisible");
         }
         else
         {
-            printf("    Jack is visible");
+            printf("  Jack is visible");
         }
     }
-
+    SetColor(1);
     printf("\n");
     printf(" ");
     for (int j = 0; j < 12; j = j + 2)
     {
         printf("\\_______/");
-        SetColor(whatc);
-        printf("%s", map[8][j + 1].what);
-        SetColor(wallc);
+        paint(map[8][j + 1].what);
     }
     printf("\\_______/");
+    SetColor(15);
+    printf("     suspects: ");
+    person *ptr = odd;
+    while (ptr != NULL)
+    {
+        if (ptr->guilty == 0)
+        {
+            printf("%s ", ptr->name);
+        }
+        ptr = ptr->next;
+    }
+    ptr = even;
+    while (ptr != NULL)
+    {
+        if (ptr->guilty == 0)
+        {
+            printf("%s ", ptr->name);
+        }
+        ptr = ptr->next;
+    }
+    SetColor(1);
     printf("\n  ");
     for (int j = 0; j < 12; j = j + 2)
     {
         printf("       \\___");
-        if (!strcmp(map[8][12].who, "NU"))
-        {
-            SetColor(0);
-        }
-        else
-        {
-            SetColor(whoc);
-        }
-        printf("%s", map[8][j + 1].who);
-        SetColor(wallc);
+
+        paint(map[8][j + 1].who);
         printf("____/");
     }
+    SetColor(15);
     printf("             innocents: ");
-    person *ptr = odd;
+    ptr = odd;
     while (ptr != NULL)
     {
         if (ptr->guilty == 1)
@@ -265,7 +259,14 @@ void GetDeafultGame()
                 int t1, t2;
                 fread(&t1, sizeof(int), 1, fp);
                 fread(&t2, sizeof(int), 1, fp);
-                map[i][j].neighbor[k] = &map[t1][t2];
+                if (t1 == -1 && t2 == -1)
+                {
+                    map[i][j].neighbor[k] = NULL;
+                }
+                else
+                {
+                    map[i][j].neighbor[k] = &map[t1][t2];
+                }
             }
         }
     }
@@ -337,7 +338,7 @@ void create_cards()
     tptr->guilty = 0;
     tptr->got = 0;
     tptr->watch = 0;
-    tptr->place = &map[0][4];
+    tptr->place = &map[1][4];
     strcpy(tptr->ability, "change place with another chracter");
     tptr->next = (person *)malloc(sizeof(person));
     tptr = tptr->next;
@@ -465,12 +466,24 @@ char *GetTheMove()
         }
         else
         {
-            printf("not a valid command, please try again using(u,i,k,m,n,h,j,1-8)");
-            // strcpy(des, ptr);
+            printf("not a valid command, please try again using(u,i,k,m,n,h,j,1-8):  ");
+            char ptr1[10];
+            char *ptr = ptr1;
+            ptr = GetTheMove();
+            strcpy(des, ptr);
         }
         *c = getchar();
     }
     int t2 = strlen(des);
+    while (t2 == 0)
+    {
+        printf("not a valid command, please try again using(u,i,k,m,n,h,j,1-8) :");
+        char ptr1[10];
+        char *ptr = ptr1;
+        ptr = GetTheMove();
+        strcpy(des, ptr);
+    }
+    t2 = strlen(des);
     des[t2] = '\0';
     return des;
 }
@@ -491,7 +504,7 @@ int CanMove(person mover, char *move, cell **last)
         if (*ptr == 'u')
         {
             where = where->neighbor[0];
-            if (where->x == -1)
+            if (where == NULL)
             {
                 return -1;
             }
@@ -510,7 +523,7 @@ int CanMove(person mover, char *move, cell **last)
         else if (*ptr == 'i')
         {
             where = where->neighbor[1];
-            if (where->x == -1)
+            if (where == NULL)
             {
                 return -3;
             }
@@ -529,7 +542,7 @@ int CanMove(person mover, char *move, cell **last)
         else if (*ptr == 'k')
         {
             where = where->neighbor[2];
-            if (where->x == -1)
+            if (where == NULL)
             {
                 return -5;
             }
@@ -548,7 +561,7 @@ int CanMove(person mover, char *move, cell **last)
         else if (*ptr == 'm')
         {
             where = where->neighbor[3];
-            if (where->x == -1)
+            if (where == NULL)
             {
                 return -7;
             }
@@ -567,7 +580,7 @@ int CanMove(person mover, char *move, cell **last)
         else if (*ptr == 'n')
         {
             where = where->neighbor[4];
-            if (where->x == -1)
+            if (where == NULL)
             {
                 return -9;
             }
@@ -586,7 +599,7 @@ int CanMove(person mover, char *move, cell **last)
         else if (*ptr == 'h')
         {
             where = where->neighbor[5];
-            if (where->x == -1)
+            if (where == NULL)
             {
                 return -11;
             }
@@ -656,14 +669,13 @@ cell *checkNear(cell *where)
     }
     return NULL;
 }
-
-void NewRound()
+void newturn()
 {
+    system("cls");
     display_map();
     printf("choose one(write the initials-capital letter-and press enter): ");
-    if (roundglobal % 2 == 1)
+    if (turnglobal <= 4)
     {
-        shuffle();
         person *ptr = odd;
         while (ptr != NULL)
         {
@@ -674,8 +686,8 @@ void NewRound()
             ptr = ptr->next;
         }
     }
-    else
-    { // round%2==0
+    else if (turnglobal > 4)
+    {
         person *ptr = even;
         while (ptr != NULL)
         {
@@ -721,8 +733,51 @@ void NewRound()
     {
         JB_play();
     }
+    return;
+}
+void NewRound()
+{
+    turnglobal = 1;
     system("cls");
-    display_map();
+    if (roundglobal % 2 == 1)
+    {
+        shuffle();
+    }
+    for (int i = 0; i < 4; i++)
+    {
+        newturn();
+        turnglobal++;
+        checkend();
+    }
+    roundglobal++;
+    NewRound();
+    
+}
+
+void johnlight(cell *place, int direction)
+{
+    cell *ptr = place->neighbor[direction];
+    while (ptr->neighbor[direction] != NULL)
+    {
+        strcpy(ptr->watch, "on!");
+        printf("done");
+        ptr = ptr->neighbor[direction];
+    }
+    strcpy(ptr->watch, "on!");
+    return;
+}
+
+void johnlight_off(cell *place, int direction)
+{
+    cell *ptr = place->neighbor[direction];
+    while (ptr->neighbor[direction] != NULL)
+    {
+        strcpy(ptr->watch, "off");
+        printf("done");
+        ptr = ptr->neighbor[direction];
+    }
+    strcpy(ptr->watch, "off");
+    return;
 }
 
 void SH_play()
@@ -778,13 +833,85 @@ void SH_play()
         }
         pick->got = 1;
         pick->guilty = 1;
-        printf("%s is innocent", pick->name);
+        printf("        %s is innocent", pick->name);
+        getchar();
         return;
     }
 }
 
 void JW_play()
 {
+    person *john = FindThePerson("JW");
+    printf("\nJS : move 1 to 3 cells : ");
+    cell *last;
+    char *m = GetTheMove();
+    int can = CanMove(*john, m, &last);
+    while (can != 1)
+    {
+        printf("\n not a correct move,try again: ");
+        m = GetTheMove();
+        can = CanMove(*john, m, &last);
+        printf("%d", can);
+    }
+    if (can == 1)
+    {
+        strcpy(john->place->who, "NU");
+        john->place = last;
+        strcpy(last->who, "JW");
+        john->played = 1;
+    }
+
+    printf("\nchoose the direction you want to lighten(i,u,k,m,n,h):      ");
+    char move;
+    scanf(" %c", &move);
+    johnlight_off(john->place, johndirection);
+    if (move == 'u')
+    {
+        johnlight(john->place, 0);
+        johndirection = 0;
+    }
+    else if (move == 'i')
+    {
+        johnlight(john->place, 1);
+        johndirection = 1;
+    }
+    else if (move == 'k')
+    {
+        johnlight(john->place, 2);
+        johndirection = 2;
+    }
+    else if (move == 'm')
+    {
+        johnlight(john->place, 3);
+        johndirection = 3;
+    }
+    else if (move == 'n')
+    {
+        johnlight(john->place, 4);
+        johndirection = 4;
+    }
+    else if (move == 'h')
+    {
+        johnlight(john->place, 5);
+        johndirection = 5;
+    }
+    for (int i = 0; i < 8; i++)
+    {
+        if (strncmp(&(lamp[i]->what[6]), "on!", 3))
+        {
+            for (int j = 0; j < 6; j++)
+            {
+                strcpy(lamp[i]->neighbor[j]->watch, "on!");
+            }
+        }
+        else if (strncmp(&(lamp[i]->what[6]), "off", 3))
+        {
+            for (int j = 0; j < 6; j++)
+            {
+                strcpy(lamp[i]->neighbor[j]->watch, "off!");
+            }
+        }
+    }
     return;
 }
 
@@ -814,67 +941,131 @@ void JS_play()
         if (off == 1)
         {
             strcpy(lamp[0]->what, "lamp1-off");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[0]->neighbor[i]->watch, "off");
+            }
         }
         else if (off == 2)
         {
             strcpy(lamp[1]->what, "lamp2-off");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[1]->neighbor[i]->watch, "off");
+            }
         }
         else if (off == 3)
         {
             strcpy(lamp[2]->what, "lamp3-off");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[2]->neighbor[i]->watch, "off");
+            }
         }
         else if (off == 4)
         {
             strcpy(lamp[3]->what, "lamp4-off");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[3]->neighbor[i]->watch, "off");
+            }
         }
         else if (off == 5)
         {
             strcpy(lamp[4]->what, "lamp5-off");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[4]->neighbor[i]->watch, "off");
+            }
         }
         else if (off == 6)
         {
             strcpy(lamp[5]->what, "lamp6-off");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[6]->neighbor[i]->watch, "off");
+            }
         }
         else if (off == 7)
         {
             strcpy(lamp[6]->what, "lamp7-off");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[6]->neighbor[i]->watch, "off");
+            }
         }
         else if (off == 8)
         {
             strcpy(lamp[7]->what, "lamp8-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[7]->neighbor[i]->watch, "off");
+            }
         }
         off = on;
         if (off == 1)
         {
             strcpy(lamp[0]->what, "lamp1-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[0]->neighbor[i]->watch, "on!");
+            }
         }
         else if (off == 2)
         {
             strcpy(lamp[1]->what, "lamp2-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[1]->neighbor[i]->watch, "on!");
+            }
         }
         else if (off == 3)
         {
             strcpy(lamp[2]->what, "lamp3-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[2]->neighbor[i]->watch, "on!");
+            }
         }
         else if (off == 4)
         {
             strcpy(lamp[3]->what, "lamp4-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[3]->neighbor[i]->watch, "on!");
+            }
         }
         else if (off == 5)
         {
             strcpy(lamp[4]->what, "lamp5-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[4]->neighbor[i]->watch, "on!");
+            }
         }
         else if (off == 6)
         {
             strcpy(lamp[5]->what, "lamp6-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[5]->neighbor[i]->watch, "on!");
+            }
         }
         else if (off == 7)
         {
             strcpy(lamp[6]->what, "lamp7-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[6]->neighbor[i]->watch, "on!");
+            }
         }
         else if (off == 8)
         {
             strcpy(lamp[7]->what, "lamp8-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[7]->neighbor[i]->watch, "on!");
+            }
         }
 
         printf("\nJS : move 1 to 3 cells : ");
@@ -933,89 +1124,637 @@ void JS_play()
         if (off == 1)
         {
             strcpy(lamp[0]->what, "lamp1-off");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[0]->neighbor[i]->watch, "off");
+            }
         }
         else if (off == 2)
         {
             strcpy(lamp[1]->what, "lamp2-off");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[1]->neighbor[i]->watch, "off");
+            }
         }
         else if (off == 3)
         {
             strcpy(lamp[2]->what, "lamp3-off");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[2]->neighbor[i]->watch, "off");
+            }
         }
         else if (off == 4)
         {
             strcpy(lamp[3]->what, "lamp4-off");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[3]->neighbor[i]->watch, "off");
+            }
         }
         else if (off == 5)
         {
             strcpy(lamp[4]->what, "lamp5-off");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[4]->neighbor[i]->watch, "off");
+            }
         }
         else if (off == 6)
         {
             strcpy(lamp[5]->what, "lamp6-off");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[6]->neighbor[i]->watch, "off");
+            }
         }
         else if (off == 7)
         {
             strcpy(lamp[6]->what, "lamp7-off");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[6]->neighbor[i]->watch, "off");
+            }
         }
         else if (off == 8)
         {
             strcpy(lamp[7]->what, "lamp8-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[7]->neighbor[i]->watch, "off");
+            }
         }
         off = on;
         if (off == 1)
         {
             strcpy(lamp[0]->what, "lamp1-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[0]->neighbor[i]->watch, "on!");
+            }
         }
         else if (off == 2)
         {
             strcpy(lamp[1]->what, "lamp2-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[1]->neighbor[i]->watch, "on!");
+            }
         }
         else if (off == 3)
         {
             strcpy(lamp[2]->what, "lamp3-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[2]->neighbor[i]->watch, "on!");
+            }
         }
         else if (off == 4)
         {
             strcpy(lamp[3]->what, "lamp4-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[3]->neighbor[i]->watch, "on!");
+            }
         }
         else if (off == 5)
         {
             strcpy(lamp[4]->what, "lamp5-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[4]->neighbor[i]->watch, "on!");
+            }
         }
         else if (off == 6)
         {
             strcpy(lamp[5]->what, "lamp6-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[5]->neighbor[i]->watch, "on!");
+            }
         }
         else if (off == 7)
         {
             strcpy(lamp[6]->what, "lamp7-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[6]->neighbor[i]->watch, "on!");
+            }
         }
         else if (off == 8)
         {
             strcpy(lamp[7]->what, "lamp8-on!");
+            for (int i = 0; i < 6; i++)
+            {
+                strcpy(lamp[7]->neighbor[i]->watch, "on!");
+            }
         }
     }
+    johnlight((FindThePerson("JW")->place), johndirection);
+    return;
+}
 
+void SG_play()
+{
+    person *goodley = FindThePerson("SG");
+    printf("SG : choose: 1)call person(s) 3 cells closer           2)move 1 to 3 steps");
+    int choice;
+    scanf("%d", &choice);
+    if (choice == 1)
+    {
+
+        for (int i = 0; i < 3; i++)
+        {
+            printf("\ninsert the person's initials:     ");
+            char close[3];
+            char *ptr = close;
+            scanf(" %s", close);
+            person *called = FindThePerson(ptr);
+            printf("%s", called->name);
+            char move;
+            char themove[2] = " ";
+            if (called->place->y == goodley->place->y && called->place->x > goodley->place->x)
+            {
+                printf("allowed moves(choose one): u :       ");
+                scanf(" %c", &move);
+                while (move != 'u')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            else if (called->place->y == goodley->place->y && called->place->x < goodley->place->x)
+            {
+                printf("allowed moves(choose one): m :       ");
+                scanf(" %c", &move);
+                while (move != 'm')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            else if (called->place->y > goodley->place->y && called->place->x == goodley->place->x)
+            {
+                printf("allowed moves(choose one): h , n :       ");
+                scanf(" %c", &move);
+                while (move != 'h' && move != 'n')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            else if (called->place->y < goodley->place->y && called->place->x == goodley->place->x)
+            {
+                printf("allowed moves(choose one): k , i :       ");
+                scanf(" %c", &move);
+                while (move != 'i' && move != 'k')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            else if (called->place->y > goodley->place->y && called->place->x > goodley->place->x)
+            {
+                printf("allowed moves(choose one): u , h , n :       ");
+                scanf(" %c", &move);
+                while (move != 'u' && move != 'h' && move != 'n')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            else if (called->place->y > goodley->place->y && called->place->x < goodley->place->x)
+            {
+                printf("allowed moves(choose one): h , n , m :       ");
+                scanf(" %c", &move);
+                while (move != 'h' && move != 'n' && move != 'm')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            else if (called->place->y < goodley->place->y && called->place->x > goodley->place->x)
+            {
+                printf("allowed moves(choose one): u , i , k :       ");
+                scanf(" %c", &move);
+                while (move != 'u' && move != 'i' && move != 'k')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            else if (called->place->y < goodley->place->y && called->place->x < goodley->place->x)
+            {
+                printf("allowed moves(choose one): i , k ,m :       ");
+                scanf(" %c", &move);
+                while (move != 'i' && move != 'k' && move != 'm')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            cell *last;
+            int can = CanMove(*called, &(themove[0]), &last);
+            while (can != 1)
+            {
+                printf("\n not a correct move,try again: ");
+                char *m = GetTheMove();
+                while (strlen(m) != 1)
+                {
+                    printf("\n not a correct move,try again: ");
+                    m = GetTheMove();
+                }
+                can = CanMove(*called, m, &last);
+            }
+            if (can == 1)
+            {
+                strcpy(called->place->who, "NU");
+                called->place = last;
+                strcpy(last->who, called->name);
+            }
+        }
+
+        printf("\nSG : move 1 to 3 cells : ");
+        cell *last;
+        char *m = GetTheMove();
+        int can = CanMove(*goodley, m, &last);
+        while (can != 1)
+        {
+            printf("\n not a correct move,try again: ");
+            m = GetTheMove();
+            can = CanMove(*goodley, m, &last);
+        }
+        if (can == 1)
+        {
+            strcpy(goodley->place->who, "NU");
+            goodley->place = last;
+            strcpy(last->who, "SG");
+            goodley->played = 1;
+        }
+    }
+    else if (choice == 2)
+    {
+        printf("\nSG : move 1 to 3 cells : ");
+        cell *last;
+        char *m = GetTheMove();
+        int can = CanMove(*goodley, m, &last);
+        while (can != 1)
+        {
+            printf("\n not a correct move,try again: ");
+            m = GetTheMove();
+            can = CanMove(*goodley, m, &last);
+        }
+        if (can == 1)
+        {
+            strcpy(goodley->place->who, "NU");
+            goodley->place = last;
+            strcpy(last->who, "SG");
+            goodley->played = 1;
+        }
+        system("cls");
+        display_map();
+
+        for (int i = 0; i < 3; i++)
+        {
+            printf("\ninsert the person's initials:     ");
+            char close[3];
+            char *ptr = close;
+            scanf(" %s", close);
+            person *called = FindThePerson(ptr);
+            printf("%s", called->name);
+            char move;
+            char themove[2] = " ";
+            if (called->place->y == goodley->place->y && called->place->x > goodley->place->x)
+            {
+                printf("allowed moves(choose one): u :       ");
+                scanf(" %c", &move);
+                while (move != 'u')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            else if (called->place->y == goodley->place->y && called->place->x < goodley->place->x)
+            {
+                printf("allowed moves(choose one): m :       ");
+                scanf(" %c", &move);
+                while (move != 'm')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            else if (called->place->y > goodley->place->y && called->place->x == goodley->place->x)
+            {
+                printf("allowed moves(choose one): h , n :       ");
+                scanf(" %c", &move);
+                while (move != 'h' && move != 'n')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            else if (called->place->y < goodley->place->y && called->place->x == goodley->place->x)
+            {
+                printf("allowed moves(choose one): k , i :       ");
+                scanf(" %c", &move);
+                while (move != 'i' && move != 'k')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            else if (called->place->y > goodley->place->y && called->place->x > goodley->place->x)
+            {
+                printf("allowed moves(choose one): u , h , n :       ");
+                scanf(" %c", &move);
+                while (move != 'u' && move != 'h' && move != 'n')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            else if (called->place->y > goodley->place->y && called->place->x < goodley->place->x)
+            {
+                printf("allowed moves(choose one): h , n , m :       ");
+                scanf(" %c", &move);
+                while (move != 'h' && move != 'n' && move != 'm')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            else if (called->place->y < goodley->place->y && called->place->x > goodley->place->x)
+            {
+                printf("allowed moves(choose one): u , i , k :       ");
+                scanf(" %c", &move);
+                while (move != 'u' && move != 'i' && move != 'k')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            else if (called->place->y < goodley->place->y && called->place->x < goodley->place->x)
+            {
+                printf("allowed moves(choose one): i , k ,m :       ");
+                scanf(" %c", &move);
+                while (move != 'i' && move != 'k' && move != 'm')
+                {
+                    printf("\n invalid choice, try again:   ");
+                    scanf(" %c", &move);
+                }
+                themove[0] = move;
+            }
+            cell *last;
+            int can = CanMove(*called, &(themove[0]), &last);
+            while (can != 1)
+            {
+                printf("\n not a correct move,try again: ");
+                char *m = GetTheMove();
+                while (strlen(m) != 1)
+                {
+                    printf("\n not a correct move,try again: ");
+                    m = GetTheMove();
+                }
+                can = CanMove(*called, m, &last);
+            }
+            if (can == 1)
+            {
+                strcpy(called->place->who, "NU");
+                called->place = last;
+                strcpy(last->who, called->name);
+            }
+        }
+    }
     return;
 }
 
 void IL_play()
 {
+    person *lesterade = FindThePerson("IL");
+    printf("IL : choose: 1)%s           2)move 1 to 3 steps", lesterade->ability);
+    int choice;
+    scanf("%d", &choice);
+    if (choice == 1)
+    {
+        printf("\nchoose the exit you want to close(1-4) : ");
+        int off;
+        scanf("%d", &off);
+        printf("\nchoose the exit you want to open(1-4) : ");
+        int on;
+        scanf("%d", &on);
+        while (off == on)
+        {
+            printf("lamps must be different");
+            printf("\nchoose the exit you want to close(1-4) : ");
+            scanf("%d", &off);
+            printf("\nchoose the exit you want to close(1-4) : ");
+            scanf("%d", &on);
+        }
+        if (off == 1)
+        {
+            strcpy(out[0]->what, "out1-clsd");
+        }
+        else if (off == 2)
+        {
+            strcpy(out[1]->what, "out2-clsd");
+        }
+        else if (off == 3)
+        {
+            strcpy(out[2]->what, "out3-clsd");
+        }
+        else if (off == 4)
+        {
+            strcpy(out[3]->what, "out4-clsd");
+        }
+        off = on;
+        if (off == 1)
+        {
+            strcpy(out[0]->what, "out1-open");
+        }
+        else if (off == 2)
+        {
+            strcpy(out[1]->what, "out2-open");
+        }
+        else if (off == 3)
+        {
+            strcpy(out[2]->what, "out3-open");
+        }
+        else if (off == 4)
+        {
+            strcpy(out[3]->what, "out4-open");
+        }
+        printf("\nIL : move 1 to 3 cells : ");
+        cell *last;
+        char *m = GetTheMove();
+        int can = CanMove(*lesterade, m, &last);
+        while (can != 1)
+        {
+            printf("\n not a correct move,try again: ");
+            m = GetTheMove();
+            can = CanMove(*lesterade, m, &last);
+            printf("%d", can);
+        }
+        if (can == 1)
+        {
+            strcpy(lesterade->place->who, "NU");
+            lesterade->place = last;
+            strcpy(last->who, "IL");
+            lesterade->played = 1;
+        }
+    }
+    else if (choice == 2)
+    {
+        printf("\nIL : move 1 to 3 cells : ");
+        cell *last;
+        char *m = GetTheMove();
+        int can = CanMove(*lesterade, m, &last);
+        while (can != 1)
+        {
+            printf("\n not a correct move,try again: ");
+            m = GetTheMove();
+            can = CanMove(*lesterade, m, &last);
+            printf("%d", can);
+        }
+        if (can == 1)
+        {
+            strcpy(lesterade->place->who, "NU");
+            lesterade->place = last;
+            strcpy(last->who, "IL");
+            lesterade->played = 1;
+        }
+        printf("\nchoose the exit you want to close(1-4) : ");
+        int off;
+        scanf("%d", &off);
+        printf("\nchoose the exit you want to open(1-4) : ");
+        int on;
+        scanf("%d", &on);
+        while (off == on)
+        {
+            printf("lamps must be different");
+            printf("\nchoose the exit you want to close(1-4) : ");
+            scanf("%d", &off);
+            printf("\nchoose the exit you want to close(1-4) : ");
+            scanf("%d", &on);
+        }
+        if (off == 1)
+        {
+            strcpy(out[0]->what, "out1-clsd");
+        }
+        else if (off == 2)
+        {
+            strcpy(out[1]->what, "out2-clsd");
+        }
+        else if (off == 3)
+        {
+            strcpy(out[2]->what, "out3-clsd");
+        }
+        else if (off == 4)
+        {
+            strcpy(out[3]->what, "out4-clsd");
+        }
+        off = on;
+        if (off == 1)
+        {
+            strcpy(out[0]->what, "out1-open");
+        }
+        else if (off == 2)
+        {
+            strcpy(out[1]->what, "out2-open");
+        }
+        else if (off == 3)
+        {
+            strcpy(out[2]->what, "out3-open");
+        }
+        else if (off == 4)
+        {
+            strcpy(out[3]->what, "out4-open");
+        }
+    }
     return;
 }
 void MS_play()
 {
+    person *stealthy = FindThePerson("MS");
+    printf("\nMS : move 1 to 4 cells (you can move through everything): ");
+    cell *last;
+    char *m = GetTheMove();
+    int can = CanMove(*stealthy, m, &last);
+    while (can != 1)
+    {
+        printf("\n not a correct move,try again: ");
+        m = GetTheMove();
+        can = CanMove(*stealthy, m, &last);
+        printf("%d", can);
+    }
+    if (can == 1)
+    {
+        strcpy(stealthy->place->who, "NU");
+        stealthy->place = last;
+        strcpy(last->who, "MS");
+        stealthy->played = 1;
+    }
     return;
 }
-void SG_play()
-{
-    return;
-}
+
 void WG_play()
 {
+    person *wili = FindThePerson("WG");
+    printf("WG : choose: 1)change places with someone    *or*     2)move 1 to 3 steps");
+    int choice;
+    scanf("%d", &choice);
+    if (choice == 1)
+    {
+        printf("/n please insert the person's initials you want to change places with:      ");
+        char select[3];
+        char *ptr = select;
+        scanf(" %s", ptr);
+        person *changewith = FindThePerson(ptr);
+        cell *temp = wili->place;
+        wili->place = changewith->place;
+        changewith->place = temp;
+        strcpy(changewith->place->who, ptr);
+        strcpy(wili->place->who, "WG");
+    }
+    else if (choice == 2)
+    {
+        printf("\nWG : move 1 to 3 cells : ");
+        cell *last;
+        char *m = GetTheMove();
+        int can = CanMove(*wili, m, &last);
+        while (can != 1)
+        {
+            printf("\n not a correct move,try again: ");
+            m = GetTheMove();
+            can = CanMove(*wili, m, &last);
+        }
+        if (can == 1)
+        {
+            strcpy(wili->place->who, "NU");
+            wili->place = last;
+            strcpy(last->who, "WG");
+            wili->played = 1;
+        }
+    }
     return;
 }
+
 void JB_play()
 {
     person *jeremy = FindThePerson("JB");
@@ -1275,7 +2014,6 @@ void MainMenu()
         printf("Jack, You are disguised as %s\n", pick->name);
         pick->got = 1;
         jackglobal = pick;
-        pick->guilty = -1;
         getchar();
         system("cls");
         NewRound();

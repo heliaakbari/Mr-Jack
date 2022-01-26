@@ -31,16 +31,22 @@ extern int endglobal;
 
 extern person *jackglobal;
 
+extern int johndirection;
+
+extern int jackvisibility;
+
 extern person *odd;
 
 extern person *even;
 
 extern cell map[9][13];
-extern cell * out[4];
+extern cell *out[4];
 extern cell *tunnel[8];
 extern cell *lamp[8];
 void SetColor(int ForgC);
-
+void paint(char *str);
+void johnlight(cell *place, int direction);
+void newturn();
 void MainMenu();
 void create_cards();
 void shuffle();
