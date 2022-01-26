@@ -7,7 +7,7 @@
 #include "func.h"
 #include <time.h>
 #include <conio.h>
-extern int jackvisibility = 0;
+int jackvisibility = 0;
 int turnglobal = 1;
 int endglobal = 0;
 int roundglobal = 1;
@@ -394,8 +394,8 @@ void shuffle()
 
     (ar1[3])->next = NULL;
     (ar2[3])->next = NULL;
-    even = ar1[0];
-    odd = ar2[0];
+    even = ar2[0];
+    odd = ar1[0];
     return;
 }
 
@@ -490,7 +490,6 @@ char *GetTheMove()
 
 int CanMove(person mover, char *move, cell **last)
 {
-    printf("%s\n", move);
     char *ptr = move;
     int count = 0;
     cell *where = mover.place;
@@ -637,7 +636,6 @@ int CanMove(person mover, char *move, cell **last)
         ptr = ptr + 1;
         if (count > total)
         {
-            printf("%d %d", count, total);
             return -15;
         }
     }
@@ -673,8 +671,9 @@ void newturn()
 {
     system("cls");
     display_map();
-    printf("choose one(write the initials-capital letter-and press enter): ");
-    if (turnglobal <= 4)
+    printfcard();
+    printf("\nchoose one(write the initials-capital letter-and press enter): ");
+    if (roundglobal % 2 == 1)
     {
         person *ptr = odd;
         while (ptr != NULL)
@@ -686,7 +685,7 @@ void newturn()
             ptr = ptr->next;
         }
     }
-    else if (turnglobal > 4)
+    else if (roundglobal % 2 == 0)
     {
         person *ptr = even;
         while (ptr != NULL)
@@ -735,8 +734,22 @@ void newturn()
     }
     return;
 }
+
 void NewRound()
 {
+    person *ptr = odd;
+    while (ptr != NULL)
+    {
+        ptr->played = 0;
+        ptr = ptr->next;
+    }
+    ptr = even;
+    while (ptr != NULL)
+    {
+        ptr->played = 0;
+        ptr = ptr->next;
+    }
+
     turnglobal = 1;
     system("cls");
     if (roundglobal % 2 == 1)
@@ -747,20 +760,117 @@ void NewRound()
     {
         newturn();
         turnglobal++;
-        checkend();
+        // checkend();
     }
     roundglobal++;
+    checkvisibility();
     NewRound();
-    
+}
+
+void checkvisibility()
+{
+    if (!strcmp(jackglobal->place->watch, "on!"))
+    {
+        jackvisibility = 1;
+        jackglobal->watch = 1;
+    }
+    else if (!strcmp(jackglobal->place->watch, "off"))
+    {
+        jackvisibility = 0;
+        jackglobal->watch = 0;
+    }
+    for (int i = 0; i < 6; i++)
+    {
+        if (jackglobal->place->neighbor[i] == NULL)
+        {
+            continue;
+        }
+        if (strcmp(jackglobal->place->neighbor[i]->who, "NU"))
+        {
+            jackvisibility = 1;
+            jackglobal->watch = 1;
+        }
+    }
+    person *ptr = odd;
+    while (ptr != NULL)
+    {
+        if (!strcmp(ptr->place->watch, "on!"))
+        {
+            ptr->watch = 1;
+        }
+        else if (!strcmp(ptr->place->watch, "off"))
+        {
+            ptr->watch = 0;
+        }
+        for (int i = 0; i < 6; i++)
+        {
+            if (ptr->place->neighbor[i] == NULL)
+            {
+                continue;
+            }
+            if (strcmp(ptr->place->neighbor[i]->who, "NU"))
+            {
+                ptr->watch = 1;
+            }
+        }
+        ptr = ptr->next;
+    }
+    ptr = even;
+    while (ptr != NULL)
+    {
+        if (!strcmp(ptr->place->watch, "on!"))
+        {
+            ptr->watch = 1;
+        }
+
+        else if (!strcmp(ptr->place->watch, "off"))
+        {
+            ptr->watch = 0;
+        }
+        for (int i = 0; i < 6; i++)
+        {
+            if (ptr->place->neighbor[i] == NULL)
+            {
+                continue;
+            }
+            if (strcmp(ptr->place->neighbor[i]->who, "NU"))
+            {
+                ptr->watch = 1;
+            }
+        }
+        ptr = ptr->next;
+    }
+    ptr = odd;
+    while (ptr != NULL)
+    {
+        if (ptr->watch != jackglobal->watch)
+        {
+            ptr->guilty = 1;
+        }
+        ptr = ptr->next;
+    }
+    ptr = even;
+    while (ptr != NULL)
+    {
+        if (ptr->watch != jackglobal->watch)
+        {
+            ptr->guilty = 1;
+        }
+        ptr = ptr->next;
+    }
+    return;
 }
 
 void johnlight(cell *place, int direction)
 {
+    if (place->neighbor[direction] == NULL)
+    {
+        return;
+    }
     cell *ptr = place->neighbor[direction];
     while (ptr->neighbor[direction] != NULL)
     {
         strcpy(ptr->watch, "on!");
-        printf("done");
         ptr = ptr->neighbor[direction];
     }
     strcpy(ptr->watch, "on!");
@@ -842,7 +952,7 @@ void SH_play()
 void JW_play()
 {
     person *john = FindThePerson("JW");
-    printf("\nJS : move 1 to 3 cells : ");
+    printf("\nJW : move 1 to 3 cells : ");
     cell *last;
     char *m = GetTheMove();
     int can = CanMove(*john, m, &last);
@@ -897,18 +1007,26 @@ void JW_play()
     }
     for (int i = 0; i < 8; i++)
     {
-        if (strncmp(&(lamp[i]->what[6]), "on!", 3))
+        if (!strncmp(&(lamp[i]->what[6]), "on!", 3))
         {
             for (int j = 0; j < 6; j++)
             {
+                if (lamp[i]->neighbor[j] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[i]->neighbor[j]->watch, "on!");
             }
         }
-        else if (strncmp(&(lamp[i]->what[6]), "off", 3))
+        else if (!strncmp(&(lamp[i]->what[6]), "off", 3))
         {
             for (int j = 0; j < 6; j++)
             {
-                strcpy(lamp[i]->neighbor[j]->watch, "off!");
+                if (lamp[i]->neighbor[j] == NULL)
+                {
+                    continue;
+                }
+                strcpy(lamp[i]->neighbor[j]->watch, "off");
             }
         }
     }
@@ -1271,7 +1389,6 @@ void SG_play()
             char *ptr = close;
             scanf(" %s", close);
             person *called = FindThePerson(ptr);
-            printf("%s", called->name);
             char move;
             char themove[2] = " ";
             if (called->place->y == goodley->place->y && called->place->x > goodley->place->x)
@@ -1280,6 +1397,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'u')
                 {
+                    getchar();
                     printf("\n invalid choice, try again:   ");
                     scanf(" %c", &move);
                 }
@@ -1291,6 +1409,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'm')
                 {
+                    getchar();
                     printf("\n invalid choice, try again:   ");
                     scanf(" %c", &move);
                 }
@@ -1302,6 +1421,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'h' && move != 'n')
                 {
+                    getchar();
                     printf("\n invalid choice, try again:   ");
                     scanf(" %c", &move);
                 }
@@ -1313,6 +1433,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'i' && move != 'k')
                 {
+                    getchar();
                     printf("\n invalid choice, try again:   ");
                     scanf(" %c", &move);
                 }
@@ -1324,6 +1445,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'u' && move != 'h' && move != 'n')
                 {
+                    getchar();
                     printf("\n invalid choice, try again:   ");
                     scanf(" %c", &move);
                 }
@@ -1335,6 +1457,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'h' && move != 'n' && move != 'm')
                 {
+                    getchar();
                     printf("\n invalid choice, try again:   ");
                     scanf(" %c", &move);
                 }
@@ -1346,6 +1469,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'u' && move != 'i' && move != 'k')
                 {
+                    getchar();
                     printf("\n invalid choice, try again:   ");
                     scanf(" %c", &move);
                 }
@@ -1357,6 +1481,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'i' && move != 'k' && move != 'm')
                 {
+                    getchar();
                     printf("\n invalid choice, try again:   ");
                     scanf(" %c", &move);
                 }
@@ -1728,6 +1853,7 @@ void WG_play()
         person *changewith = FindThePerson(ptr);
         cell *temp = wili->place;
         wili->place = changewith->place;
+        wili->played = 1;
         changewith->place = temp;
         strcpy(changewith->place->who, ptr);
         strcpy(wili->place->who, "WG");
@@ -1963,9 +2089,6 @@ void JB_play()
             strcpy(tunnel[7]->what, "tnl8-open");
         }
     }
-    display_map(map, odd, even);
-    int n;
-    scanf("%d", &n);
     return;
 }
 

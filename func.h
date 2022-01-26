@@ -52,6 +52,7 @@ void create_cards();
 void shuffle();
 void printfcard();
 void NewRound();
+void checkvisibility();
 person *FindThePerson(char names[3]);
 int CanMove(person mover, char *move, cell **last);
 char *GetTheMove();
