@@ -14,12 +14,11 @@ typedef struct sell
 typedef struct node
 {
     char name[3];
-    int played; // played this round or not
-    int guilty;
-    int watch; // invisible or visible
-    int got;
-    cell *place;       // where are they?
-    char ability[100]; // for the user
+    int played;        // played this round or not
+    int guilty;        //
+    int watch;         // invisible or visible
+    int got;           // picked or not
+    cell *place;       // where are they
     struct node *next; // for linked list
 } person;
 
@@ -49,6 +48,7 @@ void johnlight(cell *place, int direction);
 void newturn();
 void MainMenu();
 void create_cards();
+void checkend();
 void shuffle();
 void printfcard();
 void NewRound();
@@ -56,7 +56,7 @@ void checkvisibility();
 person *FindThePerson(char names[3]);
 int CanMove(person mover, char *move, cell **last);
 char *GetTheMove();
-cell *checkNear(cell *where);
+void savethegame();
 void SH_play();
 void JW_play();
 void JS_play();

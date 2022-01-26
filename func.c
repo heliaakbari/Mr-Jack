@@ -59,7 +59,7 @@ void paint(char *str)
     if (!strncmp(str, "apartment", 4))
         SetColor(blue);
     else if (!strncmp(str, "lamp", 4))
-        SetColor(yellow);
+        SetColor(lightmagenta);
     else if (!strncmp(str, "side", 4))
         SetColor(black);
     else if (!strncmp(&str[5], "clsd", 3) && !strncmp(str, "tnl", 3))
@@ -67,9 +67,28 @@ void paint(char *str)
     else if (!strncmp(&str[5], "open", 3) && !strncmp(str, "tnl", 3))
         SetColor(lightred);
     else if (!strncmp(str, "on!", 3))
-        SetColor(brown);
-    else if (!strncmp(str, "off", 3))
+    {
+
         SetColor(black);
+        printf("|");
+        SetColor(blue);
+        printf("1");
+        SetColor(black);
+        printf("|");
+        SetColor(blue);
+        return;
+    }
+    else if (!strncmp(str, "off", 3))
+    {
+        SetColor(black);
+        printf("|");
+        SetColor(black);
+        printf("0");
+        SetColor(black);
+        printf("|");
+        SetColor(blue);
+        return;
+    }
     else if (!strncmp(str, "out", 3))
         SetColor(lightcyan);
     else if (!strncmp(str, "NU", 2))
@@ -141,7 +160,7 @@ void display_map()
     paint(map[8][12].what);
     printf("\\");
     SetColor(15);
-    if (turnglobal % 8 == 1 || turnglobal % 8 == 4 || turnglobal % 8 == 6 || turnglobal % 8 == 7)
+    if ((turnglobal % 4 == 1 && roundglobal % 2 == 1) || (turnglobal % 4 == 0 && roundglobal % 2 == 1) || (turnglobal % 4 == 2 && roundglobal % 2 == 0) || (turnglobal % 4 == 3 && roundglobal % 2 == 0))
     {
         printf("    Detective's turn(round%d,turn%d)", roundglobal, turnglobal);
     }
@@ -241,6 +260,11 @@ void display_map()
     return;
 }
 
+void savethegame()
+{
+    ;
+}
+
 void GetDeafultGame()
 {
     FILE *fp = fopen("newgame.bin", "rb");
@@ -284,7 +308,6 @@ void create_cards()
     tptr->watch = 1;
     tptr->guilty = 0;
     tptr->place = &map[6][6];
-    strcpy(tptr->ability, "identify an innocent");
     tptr->next = (person *)malloc(sizeof(person));
     tptr = tptr->next;
     strncpy(tptr->name, "JW", 3);
@@ -293,7 +316,6 @@ void create_cards()
     tptr->guilty = 0;
     tptr->watch = 0;
     tptr->place = &map[5][0];
-    strcpy(tptr->ability, "iluminate 1 direction");
     tptr->next = (person *)malloc(sizeof(person));
     tptr = tptr->next;
     strncpy(tptr->name, "JS", 3);
@@ -302,7 +324,6 @@ void create_cards()
     tptr->guilty = 0;
     tptr->watch = 1;
     tptr->place = &map[3][6];
-    strcpy(tptr->ability, "turn off 1 lamp and turn on another");
     tptr->next = (person *)malloc(sizeof(person));
     tptr = tptr->next;
     strncpy(tptr->name, "IL", 3);
@@ -311,7 +332,6 @@ void create_cards()
     tptr->guilty = 0;
     tptr->watch = 1;
     tptr->place = &map[5][4];
-    strcpy(tptr->ability, "open 1 exit and close another");
     tptr->next = NULL;
     even = (person *)malloc(sizeof(person));
     tptr = even;
@@ -321,7 +341,6 @@ void create_cards()
     tptr->guilty = 0;
     tptr->watch = 0;
     tptr->place = &map[8][8];
-    strcpy(tptr->ability, "move through apartments but can't stop in them");
     tptr->next = (person *)malloc(sizeof(person));
     tptr = tptr->next;
     strncpy(tptr->name, "SG", 3);
@@ -330,7 +349,6 @@ void create_cards()
     tptr->guilty = 0;
     tptr->got = 0;
     tptr->place = &map[4][12];
-    strcpy(tptr->ability, "call chracter(s) 3 cells closer to himself");
     tptr->next = (person *)malloc(sizeof(person));
     tptr = tptr->next;
     strncpy(tptr->name, "WG", 3);
@@ -339,7 +357,6 @@ void create_cards()
     tptr->got = 0;
     tptr->watch = 0;
     tptr->place = &map[1][4];
-    strcpy(tptr->ability, "change place with another chracter");
     tptr->next = (person *)malloc(sizeof(person));
     tptr = tptr->next;
     strncpy(tptr->name, "JB", 3);
@@ -348,7 +365,6 @@ void create_cards()
     tptr->got = 0;
     tptr->watch = 1;
     tptr->place = &map[4][8];
-    strcpy(tptr->ability, "open 1 tunnel and close another");
     tptr->next = NULL;
     return;
 }
@@ -646,7 +662,23 @@ int CanMove(person mover, char *move, cell **last)
     }
     if (strcmp(where->who, "NU"))
     {
-        return -17;
+        if ((turnglobal % 4 == 1 && roundglobal % 2 == 1) || (turnglobal % 4 == 0 && roundglobal % 2 == 1) || (turnglobal % 4 == 2 && roundglobal % 2 == 0) || (turnglobal % 4 == 3 && roundglobal % 2 == 0))
+        {
+            if (!strncmp(where->who, jackglobal->place->who, 2))
+            {
+                ;
+                // win();
+            }
+            else
+            {
+                ;
+                // loose();
+            }
+        }
+        else
+        {
+            return -17;
+        }
     }
     if (*last == mover.place)
     {
@@ -656,23 +688,11 @@ int CanMove(person mover, char *move, cell **last)
     return 1;
 }
 
-cell *checkNear(cell *where)
-{
-    for (int i = 0; i < 6; i++)
-    {
-        if (strcmpi(where->neighbor[i]->who, "NU"))
-        {
-            return where->neighbor[i];
-        }
-    }
-    return NULL;
-}
 void newturn()
 {
     system("cls");
     display_map();
-    printfcard();
-    printf("\nchoose one(write the initials-capital letter-and press enter): ");
+    printf("choose one(write the initials-capital letter-and press enter):   ");
     if (roundglobal % 2 == 1)
     {
         person *ptr = odd;
@@ -697,7 +717,7 @@ void newturn()
             ptr = ptr->next;
         }
     }
-    printf(" : ");
+    printf("   :   ");
     char chosen[3];
     scanf(" %s", chosen);
     if (!strncmp(chosen, "SH", 2))
@@ -749,7 +769,56 @@ void NewRound()
         ptr->played = 0;
         ptr = ptr->next;
     }
-
+    if (roundglobal <= 5 && roundglobal >= 2)
+    {
+        int i;
+        for (i = 0; i < 8; i++)
+        {
+            if (!strncmp(&(lamp[i]->what[6]), "on!", 3))
+                break;
+        }
+        if (i == 0)
+        {
+            strcpy(lamp[i]->what, "lamp1-off");
+        }
+        else if (i == 1)
+        {
+            strcpy(lamp[i]->what, "lamp2-off");
+        }
+        else if (i == 2)
+        {
+            strcpy(lamp[i]->what, "lamp3-off");
+        }
+        else if (i == 3)
+        {
+            strcpy(lamp[i]->what, "lamp4-off");
+        }
+        else if (i == 4)
+        {
+            strcpy(lamp[i]->what, "lamp5-off");
+        }
+        else if (i == 5)
+        {
+            strcpy(lamp[i]->what, "lamp6-off");
+        }
+        else if (i == 6)
+        {
+            strcpy(lamp[i]->what, "lamp7-off");
+        }
+        else if (i == 7)
+        {
+            strcpy(lamp[i]->what, "lamp8-off");
+        }
+        for (int j = 0; j < 6; j++)
+        {
+            if (lamp[i]->neighbor[j] == NULL)
+            {
+                continue;
+            }
+            strcpy(lamp[i]->neighbor[j]->watch, "off");
+        }
+        johnlight(FindThePerson("JW")->place, johndirection);
+    }
     turnglobal = 1;
     system("cls");
     if (roundglobal % 2 == 1)
@@ -759,6 +828,7 @@ void NewRound()
     for (int i = 0; i < 4; i++)
     {
         newturn();
+        savethegame();
         turnglobal++;
         // checkend();
     }
@@ -861,6 +931,10 @@ void checkvisibility()
     return;
 }
 
+void checkend()
+{
+}
+
 void johnlight(cell *place, int direction)
 {
     if (place->neighbor[direction] == NULL)
@@ -899,7 +973,7 @@ void SH_play()
     int can = CanMove(*sherlock, m, &last);
     while (can != 1)
     {
-        printf("\n not a correct move,try again: ");
+        printf("not a correct move,try again:           ");
         m = GetTheMove();
         can = CanMove(*sherlock, m, &last);
     }
@@ -952,13 +1026,14 @@ void SH_play()
 void JW_play()
 {
     person *john = FindThePerson("JW");
-    printf("\nJW : move 1 to 3 cells : ");
+    johnlight_off(john->place, johndirection);
+    printf("JW : move 1 to 3 cells : ");
     cell *last;
     char *m = GetTheMove();
     int can = CanMove(*john, m, &last);
     while (can != 1)
     {
-        printf("\n not a correct move,try again: ");
+        printf(" not a correct move,try again:           ");
         m = GetTheMove();
         can = CanMove(*john, m, &last);
         printf("%d", can);
@@ -971,13 +1046,29 @@ void JW_play()
         john->played = 1;
     }
 
-    printf("\nchoose the direction you want to lighten(i,u,k,m,n,h):      ");
+    printf("choose the direction you want to lighten(i,u,k,m,n,h):           ");
     char move;
     scanf(" %c", &move);
-    johnlight_off(john->place, johndirection);
+
+    for (int i = 0; i < 8; i++)
+    {
+
+        if (!strncmp(&(lamp[i]->what[6]), "on!", 3))
+        {
+            for (int j = 0; j < 6; j++)
+            {
+                if (lamp[i]->neighbor[j] == NULL)
+                {
+                    continue;
+                }
+                strcpy(lamp[i]->neighbor[j]->watch, "on!");
+            }
+        }
+    }
     if (move == 'u')
     {
         johnlight(john->place, 0);
+
         johndirection = 0;
     }
     else if (move == 'i')
@@ -1005,7 +1096,7 @@ void JW_play()
         johnlight(john->place, 5);
         johndirection = 5;
     }
-    for (int i = 0; i < 8; i++)
+    /*for (int i = 0; i < 8; i++)
     {
         if (!strncmp(&(lamp[i]->what[6]), "on!", 3))
         {
@@ -1030,29 +1121,31 @@ void JW_play()
             }
         }
     }
+
+    */
     return;
 }
 
 void JS_play()
 {
     person *john = FindThePerson("JS");
-    printf("JS : choose: 1)%s           2)move 1 to 3 steps", john->ability);
+    printf("JS : choose: 1)turn off 1 lamp and turn on another          2)move 1 to 3 steps             ");
     int choice;
     scanf("%d", &choice);
     if (choice == 1)
     {
-        printf("\nchoose the lamp you want to turn off(a number) : ");
+        printf("choose the lamp you want to turn off(a number) :                 ");
         int off;
         scanf("%d", &off);
-        printf("\nchoose the lamp you want to turn on(a number) : ");
+        printf("choose the lamp you want to turn on(a number) :                 ");
         int on;
         scanf("%d", &on);
         while (off == on)
         {
             printf("lamps must be different");
-            printf("\nchoose the lamp you want to turn off(a number) : ");
+            printf("choose the lamp you want to turn off(a number) :           ");
             scanf("%d", &off);
-            printf("\nchoose the lamp you want to turn on(a number) : ");
+            printf("choose the lamp you want to turn on(a number) :           ");
             scanf("%d", &on);
         }
 
@@ -1061,6 +1154,10 @@ void JS_play()
             strcpy(lamp[0]->what, "lamp1-off");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[0]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[0]->neighbor[i]->watch, "off");
             }
         }
@@ -1069,6 +1166,10 @@ void JS_play()
             strcpy(lamp[1]->what, "lamp2-off");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[1]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[1]->neighbor[i]->watch, "off");
             }
         }
@@ -1077,6 +1178,10 @@ void JS_play()
             strcpy(lamp[2]->what, "lamp3-off");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[2]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[2]->neighbor[i]->watch, "off");
             }
         }
@@ -1085,6 +1190,10 @@ void JS_play()
             strcpy(lamp[3]->what, "lamp4-off");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[3]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[3]->neighbor[i]->watch, "off");
             }
         }
@@ -1093,6 +1202,10 @@ void JS_play()
             strcpy(lamp[4]->what, "lamp5-off");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[4]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[4]->neighbor[i]->watch, "off");
             }
         }
@@ -1101,7 +1214,11 @@ void JS_play()
             strcpy(lamp[5]->what, "lamp6-off");
             for (int i = 0; i < 6; i++)
             {
-                strcpy(lamp[6]->neighbor[i]->watch, "off");
+                if (lamp[5]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
+                strcpy(lamp[5]->neighbor[i]->watch, "off");
             }
         }
         else if (off == 7)
@@ -1109,6 +1226,10 @@ void JS_play()
             strcpy(lamp[6]->what, "lamp7-off");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[6]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[6]->neighbor[i]->watch, "off");
             }
         }
@@ -1117,6 +1238,10 @@ void JS_play()
             strcpy(lamp[7]->what, "lamp8-on!");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[7]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[7]->neighbor[i]->watch, "off");
             }
         }
@@ -1126,6 +1251,10 @@ void JS_play()
             strcpy(lamp[0]->what, "lamp1-on!");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[0]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[0]->neighbor[i]->watch, "on!");
             }
         }
@@ -1134,6 +1263,10 @@ void JS_play()
             strcpy(lamp[1]->what, "lamp2-on!");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[1]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[1]->neighbor[i]->watch, "on!");
             }
         }
@@ -1142,6 +1275,10 @@ void JS_play()
             strcpy(lamp[2]->what, "lamp3-on!");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[2]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[2]->neighbor[i]->watch, "on!");
             }
         }
@@ -1150,6 +1287,10 @@ void JS_play()
             strcpy(lamp[3]->what, "lamp4-on!");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[3]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[3]->neighbor[i]->watch, "on!");
             }
         }
@@ -1158,6 +1299,10 @@ void JS_play()
             strcpy(lamp[4]->what, "lamp5-on!");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[4]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[4]->neighbor[i]->watch, "on!");
             }
         }
@@ -1166,6 +1311,10 @@ void JS_play()
             strcpy(lamp[5]->what, "lamp6-on!");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[5]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[5]->neighbor[i]->watch, "on!");
             }
         }
@@ -1174,6 +1323,10 @@ void JS_play()
             strcpy(lamp[6]->what, "lamp7-on!");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[6]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[6]->neighbor[i]->watch, "on!");
             }
         }
@@ -1182,17 +1335,21 @@ void JS_play()
             strcpy(lamp[7]->what, "lamp8-on!");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[7]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[7]->neighbor[i]->watch, "on!");
             }
         }
 
-        printf("\nJS : move 1 to 3 cells : ");
+        printf("JS : move 1 to 3 cells : ");
         cell *last;
         char *m = GetTheMove();
         int can = CanMove(*john, m, &last);
         while (can != 1)
         {
-            printf("\n not a correct move,try again: ");
+            printf("not a correct move,try again:       ");
             m = GetTheMove();
             can = CanMove(*john, m, &last);
             printf("%d", can);
@@ -1207,13 +1364,13 @@ void JS_play()
     }
     else if (choice == 2)
     {
-        printf("\nJS : move 1 to 3 cells : ");
+        printf("JS : move 1 to 3 cells : ");
         cell *last;
         char *m = GetTheMove();
         int can = CanMove(*john, m, &last);
         while (can != 1)
         {
-            printf("\n not a correct move,try again: ");
+            printf("not a correct move,try again:        ");
             m = GetTheMove();
             can = CanMove(*john, m, &last);
         }
@@ -1224,18 +1381,18 @@ void JS_play()
             strcpy(last->who, "JS");
             john->played = 1;
         }
-        printf("\nchoose the lamp you want to turn off(a number) : ");
+        printf("choose the lamp you want to turn off(a number) :          ");
         int off;
         scanf("%d", &off);
-        printf("\nchoose the lamp you want to turn on(a number) : ");
+        printf("choose the lamp you want to turn on(a number) :           ");
         int on;
         scanf("%d", &on);
         while (off == on)
         {
             printf("lamps must be different");
-            printf("\nchoose the lamp you want to turn off(a number) : ");
+            printf("choose the lamp you want to turn off(a number) :          ");
             scanf("%d", &off);
-            printf("\nchoose the lamp you want to turn on(a number) : ");
+            printf("choose the lamp you want to turn on(a number) :          ");
             scanf("%d", &on);
         }
 
@@ -1376,7 +1533,7 @@ void JS_play()
 void SG_play()
 {
     person *goodley = FindThePerson("SG");
-    printf("SG : choose: 1)call person(s) 3 cells closer           2)move 1 to 3 steps");
+    printf("SG : choose: 1)call person(s) 3 cells closer           2)move 1 to 3 steps      ");
     int choice;
     scanf("%d", &choice);
     if (choice == 1)
@@ -1384,7 +1541,7 @@ void SG_play()
 
         for (int i = 0; i < 3; i++)
         {
-            printf("\ninsert the person's initials:     ");
+            printf("insert the person's initials:            ");
             char close[3];
             char *ptr = close;
             scanf(" %s", close);
@@ -1398,7 +1555,7 @@ void SG_play()
                 while (move != 'u')
                 {
                     getchar();
-                    printf("\n invalid choice, try again:   ");
+                    printf("invalid choice, try again:         ");
                     scanf(" %c", &move);
                 }
                 themove[0] = move;
@@ -1446,7 +1603,7 @@ void SG_play()
                 while (move != 'u' && move != 'h' && move != 'n')
                 {
                     getchar();
-                    printf("\n invalid choice, try again:   ");
+                    printf("invalid choice, try again:            ");
                     scanf(" %c", &move);
                 }
                 themove[0] = move;
@@ -1458,7 +1615,7 @@ void SG_play()
                 while (move != 'h' && move != 'n' && move != 'm')
                 {
                     getchar();
-                    printf("\n invalid choice, try again:   ");
+                    printf("invalid choice, try again:         ");
                     scanf(" %c", &move);
                 }
                 themove[0] = move;
@@ -1470,7 +1627,7 @@ void SG_play()
                 while (move != 'u' && move != 'i' && move != 'k')
                 {
                     getchar();
-                    printf("\n invalid choice, try again:   ");
+                    printf("invalid choice, try again:           ");
                     scanf(" %c", &move);
                 }
                 themove[0] = move;
@@ -1482,7 +1639,7 @@ void SG_play()
                 while (move != 'i' && move != 'k' && move != 'm')
                 {
                     getchar();
-                    printf("\n invalid choice, try again:   ");
+                    printf(" invalid choice, try again:            ");
                     scanf(" %c", &move);
                 }
                 themove[0] = move;
@@ -1491,11 +1648,11 @@ void SG_play()
             int can = CanMove(*called, &(themove[0]), &last);
             while (can != 1)
             {
-                printf("\n not a correct move,try again: ");
+                printf("not a correct move,try again:            ");
                 char *m = GetTheMove();
                 while (strlen(m) != 1)
                 {
-                    printf("\n not a correct move,try again: ");
+                    printf("not a correct move,try again:            ");
                     m = GetTheMove();
                 }
                 can = CanMove(*called, m, &last);
@@ -1508,13 +1665,13 @@ void SG_play()
             }
         }
 
-        printf("\nSG : move 1 to 3 cells : ");
+        printf("SG : move 1 to 3 cells : ");
         cell *last;
         char *m = GetTheMove();
         int can = CanMove(*goodley, m, &last);
         while (can != 1)
         {
-            printf("\n not a correct move,try again: ");
+            printf("not a correct move,try again:           ");
             m = GetTheMove();
             can = CanMove(*goodley, m, &last);
         }
@@ -1528,13 +1685,13 @@ void SG_play()
     }
     else if (choice == 2)
     {
-        printf("\nSG : move 1 to 3 cells : ");
+        printf("SG : move 1 to 3 cells : ");
         cell *last;
         char *m = GetTheMove();
         int can = CanMove(*goodley, m, &last);
         while (can != 1)
         {
-            printf("\n not a correct move,try again: ");
+            printf("not a correct move,try again:            ");
             m = GetTheMove();
             can = CanMove(*goodley, m, &last);
         }
@@ -1550,7 +1707,7 @@ void SG_play()
 
         for (int i = 0; i < 3; i++)
         {
-            printf("\ninsert the person's initials:     ");
+            printf("insert the person's initials:          ");
             char close[3];
             char *ptr = close;
             scanf(" %s", close);
@@ -1564,7 +1721,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'u')
                 {
-                    printf("\n invalid choice, try again:   ");
+                    printf("invalid choice, try again:            ");
                     scanf(" %c", &move);
                 }
                 themove[0] = move;
@@ -1575,7 +1732,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'm')
                 {
-                    printf("\n invalid choice, try again:   ");
+                    printf(" invalid choice, try again:           ");
                     scanf(" %c", &move);
                 }
                 themove[0] = move;
@@ -1586,7 +1743,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'h' && move != 'n')
                 {
-                    printf("\n invalid choice, try again:   ");
+                    printf("invalid choice, try again:            ");
                     scanf(" %c", &move);
                 }
                 themove[0] = move;
@@ -1597,7 +1754,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'i' && move != 'k')
                 {
-                    printf("\n invalid choice, try again:   ");
+                    printf(" invalid choice, try again:          ");
                     scanf(" %c", &move);
                 }
                 themove[0] = move;
@@ -1608,7 +1765,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'u' && move != 'h' && move != 'n')
                 {
-                    printf("\n invalid choice, try again:   ");
+                    printf("invalid choice, try again:            ");
                     scanf(" %c", &move);
                 }
                 themove[0] = move;
@@ -1619,7 +1776,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'h' && move != 'n' && move != 'm')
                 {
-                    printf("\n invalid choice, try again:   ");
+                    printf("invalid choice, try again:          ");
                     scanf(" %c", &move);
                 }
                 themove[0] = move;
@@ -1630,7 +1787,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'u' && move != 'i' && move != 'k')
                 {
-                    printf("\n invalid choice, try again:   ");
+                    printf("invalid choice, try again:            ");
                     scanf(" %c", &move);
                 }
                 themove[0] = move;
@@ -1641,7 +1798,7 @@ void SG_play()
                 scanf(" %c", &move);
                 while (move != 'i' && move != 'k' && move != 'm')
                 {
-                    printf("\n invalid choice, try again:   ");
+                    printf("invalid choice, try again:         ");
                     scanf(" %c", &move);
                 }
                 themove[0] = move;
@@ -1650,11 +1807,11 @@ void SG_play()
             int can = CanMove(*called, &(themove[0]), &last);
             while (can != 1)
             {
-                printf("\n not a correct move,try again: ");
+                printf("not a correct move,try again:           ");
                 char *m = GetTheMove();
                 while (strlen(m) != 1)
                 {
-                    printf("\n not a correct move,try again: ");
+                    printf("not a correct move,try again:         ");
                     m = GetTheMove();
                 }
                 can = CanMove(*called, m, &last);
@@ -1673,23 +1830,23 @@ void SG_play()
 void IL_play()
 {
     person *lesterade = FindThePerson("IL");
-    printf("IL : choose: 1)%s           2)move 1 to 3 steps", lesterade->ability);
+    printf("IL : choose: 1)close one exit and open another          2)move 1 to 3 steps         ");
     int choice;
     scanf("%d", &choice);
     if (choice == 1)
     {
-        printf("\nchoose the exit you want to close(1-4) : ");
+        printf("choose the exit you want to close(1-4) :      ");
         int off;
         scanf("%d", &off);
-        printf("\nchoose the exit you want to open(1-4) : ");
+        printf("choose the exit you want to open(1-4) :       ");
         int on;
         scanf("%d", &on);
         while (off == on)
         {
             printf("lamps must be different");
-            printf("\nchoose the exit you want to close(1-4) : ");
+            printf("choose the exit you want to close(1-4) :          ");
             scanf("%d", &off);
-            printf("\nchoose the exit you want to close(1-4) : ");
+            printf("choose the exit you want to close(1-4) :          ");
             scanf("%d", &on);
         }
         if (off == 1)
@@ -1725,13 +1882,13 @@ void IL_play()
         {
             strcpy(out[3]->what, "out4-open");
         }
-        printf("\nIL : move 1 to 3 cells : ");
+        printf("IL : move 1 to 3 cells : ");
         cell *last;
         char *m = GetTheMove();
         int can = CanMove(*lesterade, m, &last);
         while (can != 1)
         {
-            printf("\n not a correct move,try again: ");
+            printf("not a correct move,try again:        ");
             m = GetTheMove();
             can = CanMove(*lesterade, m, &last);
             printf("%d", can);
@@ -1746,13 +1903,13 @@ void IL_play()
     }
     else if (choice == 2)
     {
-        printf("\nIL : move 1 to 3 cells : ");
+        printf("IL : move 1 to 3 cells : ");
         cell *last;
         char *m = GetTheMove();
         int can = CanMove(*lesterade, m, &last);
         while (can != 1)
         {
-            printf("\n not a correct move,try again: ");
+            printf("not a correct move,try again:           ");
             m = GetTheMove();
             can = CanMove(*lesterade, m, &last);
             printf("%d", can);
@@ -1764,18 +1921,18 @@ void IL_play()
             strcpy(last->who, "IL");
             lesterade->played = 1;
         }
-        printf("\nchoose the exit you want to close(1-4) : ");
+        printf("choose the exit you want to close(1-4) :          ");
         int off;
         scanf("%d", &off);
-        printf("\nchoose the exit you want to open(1-4) : ");
+        printf("choose the exit you want to open(1-4) :            ");
         int on;
         scanf("%d", &on);
         while (off == on)
         {
             printf("lamps must be different");
-            printf("\nchoose the exit you want to close(1-4) : ");
+            printf("choose the exit you want to close(1-4) :       ");
             scanf("%d", &off);
-            printf("\nchoose the exit you want to close(1-4) : ");
+            printf("choose the exit you want to close(1-4) :      ");
             scanf("%d", &on);
         }
         if (off == 1)
@@ -1817,13 +1974,13 @@ void IL_play()
 void MS_play()
 {
     person *stealthy = FindThePerson("MS");
-    printf("\nMS : move 1 to 4 cells (you can move through everything): ");
+    printf("MS : move 1 to 4 cells (you can move through everything): ");
     cell *last;
     char *m = GetTheMove();
     int can = CanMove(*stealthy, m, &last);
     while (can != 1)
     {
-        printf("\n not a correct move,try again: ");
+        printf("not a correct move,try again:           ");
         m = GetTheMove();
         can = CanMove(*stealthy, m, &last);
         printf("%d", can);
@@ -1841,7 +1998,7 @@ void MS_play()
 void WG_play()
 {
     person *wili = FindThePerson("WG");
-    printf("WG : choose: 1)change places with someone    *or*     2)move 1 to 3 steps");
+    printf("WG : choose: 1)change places with someone    *or*     2)move 1 to 3 steps       ");
     int choice;
     scanf("%d", &choice);
     if (choice == 1)
@@ -1860,13 +2017,13 @@ void WG_play()
     }
     else if (choice == 2)
     {
-        printf("\nWG : move 1 to 3 cells : ");
+        printf("WG : move 1 to 3 cells : ");
         cell *last;
         char *m = GetTheMove();
         int can = CanMove(*wili, m, &last);
         while (can != 1)
         {
-            printf("\n not a correct move,try again: ");
+            printf(" not a correct move,try again:          ");
             m = GetTheMove();
             can = CanMove(*wili, m, &last);
         }
@@ -1884,23 +2041,23 @@ void WG_play()
 void JB_play()
 {
     person *jeremy = FindThePerson("JB");
-    printf("JB : choose: 1)%s           2)move 1 to 3 steps", jeremy->ability);
+    printf("JB : choose: 1)close 1 tunnel and open another           2)move 1 to 3 steps        ");
     int choice;
     scanf("%d", &choice);
     if (choice == 1)
     {
-        printf("\nchoose the tunnel you want to close(a number) : ");
+        printf("choose the tunnel you want to close(a number) :           ");
         int off;
         scanf("%d", &off);
-        printf("\nchoose the tunnel you want to open(a number) : ");
+        printf("choose the tunnel you want to open(a number) :            ");
         int on;
         scanf("%d", &on);
         while (off == on)
         {
             printf("tunnels must be different");
-            printf("\nchoose the tunnel you want to turn off(a number) : ");
+            printf("choose the tunnel you want to turn off(a number) :        ");
             scanf("%d", &off);
-            printf("\nchoose the tunnel you want to turn on(a number) : ");
+            printf("choose the tunnel you want to turn on(a number) :         ");
             scanf("%d", &on);
         }
 
@@ -1970,14 +2127,13 @@ void JB_play()
             strcpy(tunnel[7]->what, "tnl8-open");
         }
 
-        printf("\nJB : move 1 to 3 cells : ");
+        printf("JB : move 1 to 3 cells : ");
         cell *last;
         char *m = GetTheMove();
         int can = CanMove(*jeremy, m, &last);
         while (can != 1)
         {
-            printf("%d\n", can);
-            printf("\n not a correct move,try again: ");
+            printf(" not a correct move,try again:          ");
             m = GetTheMove();
             can = CanMove(*jeremy, m, &last);
         }
@@ -1991,13 +2147,13 @@ void JB_play()
     }
     else if (choice == 2)
     {
-        printf("\nJB : move 1 to 3 cells : ");
+        printf("JB : move 1 to 3 cells : ");
         cell *last;
         char *m = GetTheMove();
         int can = CanMove(*jeremy, m, &last);
         while (can != 1)
         {
-            printf("\n not a correct move,try again: ");
+            printf("not a correct move,try again:           ");
             m = GetTheMove();
             can = CanMove(*jeremy, m, &last);
         }
@@ -2008,18 +2164,18 @@ void JB_play()
             strcpy(last->who, "JB");
             jeremy->played = 1;
         }
-        printf("\nchoose the tunnel you want to close(a number) : ");
+        printf("choose the tunnel you want to close(a number) :           ");
         int off;
         scanf("%d", &off);
-        printf("\nchoose the tunnel you want to open(a number) : ");
+        printf("choose the tunnel you want to open(a number) :             ");
         int on;
         scanf("%d", &on);
         while (off == on)
         {
             printf("tunnels must be different");
-            printf("\nchoose the tunnel you want to turn off(a number) : ");
+            printf("choose the tunnel you want to turn off(a number) :             ");
             scanf("%d", &off);
-            printf("\nchoose the tunnel you want to turn on(a number) : ");
+            printf("choose the tunnel you want to turn on(a number) :             ");
             scanf("%d", &on);
         }
 
