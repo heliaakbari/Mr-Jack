@@ -50,6 +50,8 @@ void MainMenu();
 void create_cards();
 void checkend();
 void shuffle();
+void win();
+void loose();
 void printfcard();
 void NewRound();
 void checkvisibility();

@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <dos.h>
 #include <dir.h>
+#include <ctype.h>
 #include <string.h>
 #include "func.h"
 #include <time.h>
@@ -294,6 +295,7 @@ void GetDeafultGame()
             }
         }
     }
+    strcpy(map[8][0].watch, "off");
     fclose(fp);
     return;
 }
@@ -457,56 +459,34 @@ person *FindThePerson(char names[3])
 
 char *GetTheMove()
 {
-    char c1[2] = " ";
-    char *c = c1;
-    *c = getchar(); // for \n
-    *c = getchar();
+    char c1;
     char *des = (char *)malloc(10 * sizeof(char));
     for (int i = 0; i < 10; i++)
     {
         des[i] = '\0';
     }
-    while (*c != '\0' || *c != '\r' || *c != '\n')
+    char *ptr = des;
+    c1 = getchar();
+    while (isprint((int)(c1)) || strlen(des) == 0)
     {
-        if (*c == 'u' || *c == 'i' || *c == 'k' || *c == 'm' || *c == 'n' || *c == 'h' || *c == 'j' || (*c >= '1' && *c <= '8' && des[strlen(des) - 1] == 'j'))
+
+        if (c1 != ' ')
         {
-            strcat(des, c);
+            *ptr = c1;
+            ptr = ptr + 1;
         }
-        else if (*c == ' ' || *c == '\t' || *c == '\v' || *c == '\f')
-        {
-            ;
-        }
-        else if (*c == '\n')
-        {
-            break;
-        }
-        else
-        {
-            printf("not a valid command, please try again using(u,i,k,m,n,h,j,1-8):  ");
-            char ptr1[10];
-            char *ptr = ptr1;
-            ptr = GetTheMove();
-            strcpy(des, ptr);
-        }
-        *c = getchar();
+        c1 = getchar();
     }
-    int t2 = strlen(des);
-    while (t2 == 0)
-    {
-        printf("not a valid command, please try again using(u,i,k,m,n,h,j,1-8) :");
-        char ptr1[10];
-        char *ptr = ptr1;
-        ptr = GetTheMove();
-        strcpy(des, ptr);
-    }
-    t2 = strlen(des);
-    des[t2] = '\0';
     return des;
 }
 
 int CanMove(person mover, char *move, cell **last)
 {
     char *ptr = move;
+    while (*ptr == '\n')
+    {
+        ptr = ptr + 1;
+    }
     int count = 0;
     cell *where = mover.place;
     int total = 3;
@@ -752,6 +732,10 @@ void newturn()
     {
         JB_play();
     }
+    else
+    {
+        newturn();
+    }
     return;
 }
 
@@ -830,7 +814,7 @@ void NewRound()
         newturn();
         savethegame();
         turnglobal++;
-        // checkend();
+        checkend();
     }
     roundglobal++;
     checkvisibility();
@@ -933,34 +917,62 @@ void checkvisibility()
 
 void checkend()
 {
+    if (jackvisibility == 0)
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if (!strcmp(out[i]->who, jackglobal->name))
+            {
+                loose();
+            }
+        }
+    }
+    if (roundglobal == 9 && turnglobal == 1)
+    {
+        loose();
+    }
+    return;
 }
 
 void johnlight(cell *place, int direction)
 {
-    if (place->neighbor[direction] == NULL)
+    if (place->neighbor[direction] == NULL || !strcmp(place->neighbor[direction]->what, "apartment"))
     {
         return;
     }
     cell *ptr = place->neighbor[direction];
-    while (ptr->neighbor[direction] != NULL)
+    while (ptr->neighbor[direction] != NULL && strcmp(ptr->neighbor[direction]->what, "apartment"))
     {
         strcpy(ptr->watch, "on!");
         ptr = ptr->neighbor[direction];
     }
     strcpy(ptr->watch, "on!");
-    return;
+    for (int i = 0; i < 6; i++)
+
+        return;
 }
 
 void johnlight_off(cell *place, int direction)
 {
+
     cell *ptr = place->neighbor[direction];
     while (ptr->neighbor[direction] != NULL)
     {
         strcpy(ptr->watch, "off");
-        printf("done");
         ptr = ptr->neighbor[direction];
     }
     strcpy(ptr->watch, "off");
+    for (int i = 0; i < 6; i++)
+    {
+        if (!strncmp(&(lamp[i]->what[6]), "on!", 3))
+        {
+            if (lamp[0]->neighbor[i] == NULL)
+            {
+                continue;
+            }
+            strcpy(lamp[0]->neighbor[i]->watch, "on!");
+        }
+    }
     return;
 }
 
@@ -971,10 +983,13 @@ void SH_play()
     person *sherlock = FindThePerson("SH");
     char *m = GetTheMove();
     int can = CanMove(*sherlock, m, &last);
+
     while (can != 1)
     {
+
         printf("not a correct move,try again:           ");
         m = GetTheMove();
+
         can = CanMove(*sherlock, m, &last);
     }
     if (can == 1)
@@ -1033,10 +1048,10 @@ void JW_play()
     int can = CanMove(*john, m, &last);
     while (can != 1)
     {
+        printf("%d", can);
         printf(" not a correct move,try again:           ");
         m = GetTheMove();
         can = CanMove(*john, m, &last);
-        printf("%d", can);
     }
     if (can == 1)
     {
@@ -1050,21 +1065,6 @@ void JW_play()
     char move;
     scanf(" %c", &move);
 
-    for (int i = 0; i < 8; i++)
-    {
-
-        if (!strncmp(&(lamp[i]->what[6]), "on!", 3))
-        {
-            for (int j = 0; j < 6; j++)
-            {
-                if (lamp[i]->neighbor[j] == NULL)
-                {
-                    continue;
-                }
-                strcpy(lamp[i]->neighbor[j]->watch, "on!");
-            }
-        }
-    }
     if (move == 'u')
     {
         johnlight(john->place, 0);
@@ -1096,33 +1096,7 @@ void JW_play()
         johnlight(john->place, 5);
         johndirection = 5;
     }
-    /*for (int i = 0; i < 8; i++)
-    {
-        if (!strncmp(&(lamp[i]->what[6]), "on!", 3))
-        {
-            for (int j = 0; j < 6; j++)
-            {
-                if (lamp[i]->neighbor[j] == NULL)
-                {
-                    continue;
-                }
-                strcpy(lamp[i]->neighbor[j]->watch, "on!");
-            }
-        }
-        else if (!strncmp(&(lamp[i]->what[6]), "off", 3))
-        {
-            for (int j = 0; j < 6; j++)
-            {
-                if (lamp[i]->neighbor[j] == NULL)
-                {
-                    continue;
-                }
-                strcpy(lamp[i]->neighbor[j]->watch, "off");
-            }
-        }
-    }
 
-    */
     return;
 }
 
@@ -1352,7 +1326,6 @@ void JS_play()
             printf("not a correct move,try again:       ");
             m = GetTheMove();
             can = CanMove(*john, m, &last);
-            printf("%d", can);
         }
         if (can == 1)
         {
@@ -1398,9 +1371,14 @@ void JS_play()
 
         if (off == 1)
         {
+
             strcpy(lamp[0]->what, "lamp1-off");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[0]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[0]->neighbor[i]->watch, "off");
             }
         }
@@ -1409,6 +1387,10 @@ void JS_play()
             strcpy(lamp[1]->what, "lamp2-off");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[1]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[1]->neighbor[i]->watch, "off");
             }
         }
@@ -1417,6 +1399,10 @@ void JS_play()
             strcpy(lamp[2]->what, "lamp3-off");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[2]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[2]->neighbor[i]->watch, "off");
             }
         }
@@ -1425,6 +1411,10 @@ void JS_play()
             strcpy(lamp[3]->what, "lamp4-off");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[3]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[3]->neighbor[i]->watch, "off");
             }
         }
@@ -1433,6 +1423,10 @@ void JS_play()
             strcpy(lamp[4]->what, "lamp5-off");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[4]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[4]->neighbor[i]->watch, "off");
             }
         }
@@ -1441,6 +1435,10 @@ void JS_play()
             strcpy(lamp[5]->what, "lamp6-off");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[5]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[6]->neighbor[i]->watch, "off");
             }
         }
@@ -1449,6 +1447,10 @@ void JS_play()
             strcpy(lamp[6]->what, "lamp7-off");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[6]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[6]->neighbor[i]->watch, "off");
             }
         }
@@ -1457,6 +1459,10 @@ void JS_play()
             strcpy(lamp[7]->what, "lamp8-on!");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[7]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[7]->neighbor[i]->watch, "off");
             }
         }
@@ -1466,6 +1472,10 @@ void JS_play()
             strcpy(lamp[0]->what, "lamp1-on!");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[0]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[0]->neighbor[i]->watch, "on!");
             }
         }
@@ -1474,6 +1484,10 @@ void JS_play()
             strcpy(lamp[1]->what, "lamp2-on!");
             for (int i = 0; i < 6; i++)
             {
+                if (lamp[1]->neighbor[i] == NULL)
+                {
+                    continue;
+                }
                 strcpy(lamp[1]->neighbor[i]->watch, "on!");
             }
         }
@@ -1547,7 +1561,7 @@ void SG_play()
             scanf(" %s", close);
             person *called = FindThePerson(ptr);
             char move;
-            char themove[2] = " ";
+            char themove[2] = "a";
             if (called->place->y == goodley->place->y && called->place->x > goodley->place->x)
             {
                 printf("allowed moves(choose one): u :       ");
@@ -1650,18 +1664,26 @@ void SG_play()
             {
                 printf("not a correct move,try again:            ");
                 char *m = GetTheMove();
-                while (strlen(m) != 1)
-                {
-                    printf("not a correct move,try again:            ");
-                    m = GetTheMove();
-                }
+                /* while (strlen(m) != 1)
+                 {
+                     printf("not a correct move,try again:            ");
+                     m = GetTheMove();
+                 }*/
                 can = CanMove(*called, m, &last);
             }
             if (can == 1)
             {
+                if (!strcmp(called->name, "JW"))
+                {
+                    johnlight_off(called->place, johndirection);
+                }
                 strcpy(called->place->who, "NU");
                 called->place = last;
                 strcpy(last->who, called->name);
+            }
+            if (!strcmp(called->name, "JW"))
+            {
+                johnlight(called->place, johndirection);
             }
         }
 
@@ -2008,12 +2030,20 @@ void WG_play()
         char *ptr = select;
         scanf(" %s", ptr);
         person *changewith = FindThePerson(ptr);
+        if (!strcmp(ptr, "JW"))
+        {
+            johnlight_off(changewith->place, johndirection);
+        }
         cell *temp = wili->place;
         wili->place = changewith->place;
         wili->played = 1;
         changewith->place = temp;
         strcpy(changewith->place->who, ptr);
         strcpy(wili->place->who, "WG");
+        if (!strcmp(ptr, "JW"))
+        {
+            johnlight_off(changewith->place, johndirection);
+        }
     }
     else if (choice == 2)
     {
@@ -2297,4 +2327,12 @@ void MainMenu()
         system("cls");
         NewRound();
     }
+}
+void win()
+{
+    return;
+}
+void loose()
+{
+    return;
 }
