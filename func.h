@@ -21,6 +21,9 @@ typedef struct node
     cell *place;       // where are they
     struct node *next; // for linked list
 } person;
+extern char jackname[20];
+
+extern char decname[20];
 
 extern int turnglobal;
 

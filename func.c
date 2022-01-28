@@ -9,6 +9,8 @@
 #include <time.h>
 #include <conio.h>
 int jackvisibility = 1;
+char jackname[20];
+char decname[20];
 int turnglobal = 1;
 int endglobal = 0;
 int roundglobal = 1;
@@ -318,6 +320,8 @@ void savethegame()
         fwrite(&(ptr->place->y), sizeof(int), 1, fp);
         ptr = ptr->next;
     }
+    fwrite(jackname, sizeof(char), 20, fp);
+    fwrite(decname, sizeof(char), 20, fp);
     fclose(fp);
     return;
 }
@@ -394,6 +398,8 @@ void resumethegame()
         ptr = ptr->next;
     }
     jackglobal = FindThePerson(map[t1][t2].who);
+    fread(jackname, sizeof(char), 20, fp);
+    fread(decname, sizeof(char), 20, fp);
     fclose(fp);
     return;
 }
@@ -1821,11 +1827,6 @@ void SG_play()
             {
                 printf("not a correct move,try again:            ");
                 char *m = GetTheMove();
-                /* while (strlen(m) != 1)
-                 {
-                     printf("not a correct move,try again:            ");
-                     m = GetTheMove();
-                 }*/
                 can = CanMove(*called, m, &last);
             }
             if (can == 1)
@@ -2440,13 +2441,18 @@ void MainMenu()
 {
     system("cls");
     SetColor(3);
-    printf("    >>>>Mr.Jack<<<<\n");
+    printf("\n\n          >>>>Mr.Jack<<<<\n");
     SetColor(4);
-    printf("    1) Resume \n");
+    printf("          1) Resume \n");
     SetColor(2);
-    printf("    2) New Game\n");
+    printf("          2) New Game\n");
+    SetColor(13);
+    printf("          3) Scoreboard\n");
+    SetColor(1);
+    printf("          4) Clear Scorebord\n");
     SetColor(14);
-    printf("    3) Tutorial\n");
+    printf("          5) Tutorial\n          ");
+    SetColor(15);
     int temp;
     scanf("%d", &temp);
     getchar();
@@ -2474,7 +2480,15 @@ void MainMenu()
         shuffle();
         GetDeafultGame();
         system("cls");
-        printf("It is Jack's turn. Jack please press 1 to see your identity\n");
+        SetColor(13);
+        printf("\n\n    enter your name Jack's player:    ");
+        scanf(" %s", jackname);
+        system("cls");
+        SetColor(9);
+        printf("\n\n    enter your name Detective's player:    ");
+        scanf(" %s", decname);
+        system("cls");
+        printf("\n\n    It is Jack's turn. Jack please press 1 to see your identity     ");
         srand(time(NULL));
         int random = rand() % 8;
         person *pick = odd;
@@ -2496,14 +2510,14 @@ void MainMenu()
         int t;
         scanf("%d", &t);
         getchar();
-        printf("Jack, You are disguised as %s\n", pick->name);
+        printf("\n\n    Jack, You are disguised as %s\n", pick->name);
         pick->got = 1;
         jackglobal = pick;
         getchar();
         system("cls");
         NewRound();
     }
-    else
+    else if (temp == 5)
     {
         system("cls");
         printf("\n\n\n    how to move players:\n");
@@ -2558,21 +2572,135 @@ void MainMenu()
         system("cls");
         MainMenu();
     }
+    else if (temp == 3)
+    {
+        system("cls");
+        printf("\n\n        scoreboard      \n");
+        FILE *fp = fopen("scoreboard.bin", "rb");
+        char name[20];
+        int num;
+        int score;
+        fread(&num, sizeof(int), 1, fp);
+        if (num == 0)
+        {
+            printf("        no records yet\n");
+        }
+        for (int i = 0; i < num; i++)
+        {
+            printf("\n");
+            fread(name, sizeof(char), 20, fp);
+            fread(&score, sizeof(int), 1, fp);
+            printf("    #%s#----------#%d#\n", name, score);
+        }
+        fclose(fp);
+        printf("\n\n");
+        system("pause");
+        MainMenu();
+    }
+    else if (temp == 4)
+    {
+        FILE *fp = fopen("scoreboard.bin", "wb");
+        int n = 0;
+        fwrite(&n, sizeof(int), 1, fp);
+        fclose(fp);
+        MainMenu();
+    }
+    return;
 }
 
 void win()
 {
     system("cls");
-    printf("           The Detective Wins!\n\n\n\n");
+    printf("\n\n           The Detective Wins!\n\n\n\n");
+    FILE *fp = fopen("scoreboard.bin", "rb+");
+    if (fp == NULL)
+    {
+        printf("error1");
+    }
+    int num = 0;
+    int wins = 0;
+    char name[20];
+    fread(&num, sizeof(int), 1, fp);
+    int mark = 0;
+    for (int i = 0; i < num; i++)
+    {
+        fread(name, sizeof(char), 20, fp);
+        fread(&wins, sizeof(int), 1, fp);
+        if (!strncmp(decname, name, 18))
+        {
+            wins++;
+            fseek(fp, (long)(-1 * sizeof(int)), SEEK_CUR);
+            fwrite(&wins, sizeof(int), 1, fp);
+            mark = 1;
+        }
+    }
+    if (mark == 0)
+    {
+        wins = 1;
+        fclose(fp);
+        fp = fopen("scoreboard.bin", "ab");
+        fwrite(decname, sizeof(char), 20, fp);
+        fwrite(&wins, sizeof(int), 1, fp);
+        fclose(fp);
+        fp = fopen("scoreboard.bin", "rb+");
+        if (fp == NULL)
+        {
+            printf("error2");
+        }
+        num++;
+        fwrite(&num, sizeof(int), 1, fp);
+    }
+    fclose(fp);
     system("pause");
     exit(0);
+    return;
 }
 
 void loose()
 {
     system("cls");
-    printf("            Jack Wins!");
+    printf("\n\n            Jack Wins!");
     printf("jack's secret identity was %s\n\n\n\n!", jackglobal->name);
+    FILE *fp = fopen("scoreboard.bin", "rb+");
+    if (fp == NULL)
+    {
+        printf("error1");
+    }
+    int num = 0;
+    int wins = 0;
+    char name[20];
+    fread(&num, sizeof(int), 1, fp);
+    int mark = 0;
+    for (int i = 0; i < num; i++)
+    {
+        fread(name, sizeof(char), 20, fp);
+        fread(&wins, sizeof(int), 1, fp);
+        if (!strncmp(jackname, name, 18))
+        {
+            wins++;
+            fseek(fp, (long)(-1 * sizeof(int)), SEEK_CUR);
+            fwrite(&wins, sizeof(int), 1, fp);
+            mark = 1;
+        }
+    }
+    if (mark == 0)
+    {
+        wins = 1;
+        fclose(fp);
+        fp = fopen("scoreboard.bin", "ab");
+        fwrite(jackname, sizeof(char), 20, fp);
+        fwrite(&wins, sizeof(int), 1, fp);
+        fclose(fp);
+        fp = fopen("scoreboard.bin", "rb+");
+        if (fp == NULL)
+        {
+            printf("error2");
+        }
+        num++;
+        fwrite(&num, sizeof(int), 1, fp);
+    }
+    fclose(fp);
     system("pause");
     exit(0);
+    return;
 }
