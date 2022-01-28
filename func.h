@@ -3,11 +3,11 @@
 
 typedef struct sell
 {
+    int x, y;
     char what[10];
     char watch[4];
     char who[3];
     struct sell *neighbor[6];
-    int x, y;
 
 } cell;
 
@@ -47,11 +47,13 @@ void paint(char *str);
 void johnlight(cell *place, int direction);
 void newturn();
 void MainMenu();
+void savethegame();
 void create_cards();
 void checkend();
 void shuffle();
 void win();
 void loose();
+void resumethegame();
 void printfcard();
 void NewRound();
 void checkvisibility();

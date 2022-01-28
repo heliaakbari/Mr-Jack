@@ -8,7 +8,7 @@
 #include "func.h"
 #include <time.h>
 #include <conio.h>
-int jackvisibility = 0;
+int jackvisibility = 1;
 int turnglobal = 1;
 int endglobal = 0;
 int roundglobal = 1;
@@ -20,6 +20,7 @@ cell map[9][13];
 cell *out[] = {&map[0][1], &map[0][11], &map[8][1], &map[8][11]};
 cell *tunnel[] = {&map[3][0], &map[0][5], &map[3][5], &map[5][7], &map[5][12], &map[8][7], &map[1][11], &map[7][2]};
 cell *lamp[] = {&map[6][1], &map[2][11], &map[2][2], &map[7][10], &map[3][7], &map[5][5], &map[7][7], &map[1][5]};
+
 void SetColor(int ForgC)
 {
     WORD wColor;
@@ -101,6 +102,7 @@ void paint(char *str)
     printf("%s", str);
     SetColor(blue);
 }
+
 void display_map()
 {
     SetColor(1);
@@ -184,20 +186,13 @@ void display_map()
     paint(map[8][12].who);
     printf("     /  ");
     SetColor(15);
-    if (roundglobal == 1 && turnglobal == 1)
+    if (jackvisibility == 0)
     {
-        printf("  Jack is visible");
+        printf("  Jack is invisible");
     }
     else
     {
-        if (jackglobal->watch == 0)
-        {
-            printf("  Jack is invisible");
-        }
-        else
-        {
-            printf("  Jack is visible");
-        }
+        printf("  Jack is visible");
     }
     SetColor(1);
     printf("\n");
@@ -263,7 +258,144 @@ void display_map()
 
 void savethegame()
 {
-    ;
+    FILE *fp = fopen("savedgame.bin", "wb");
+    if (fp == NULL)
+    {
+        printf("no file found ");
+        MainMenu();
+    }
+    int n = -1;
+    for (int i = 0; i < 9; i++)
+    {
+        for (int j = 0; j < 13; j++)
+        {
+            fwrite(map[i][j].what, sizeof(char), 10, fp);
+            fwrite(map[i][j].watch, sizeof(char), 4, fp);
+            fwrite(map[i][j].who, sizeof(char), 3, fp);
+            for (int k = 0; k < 6; k++)
+            {
+                if (map[i][j].neighbor[k] == NULL)
+                {
+                    fwrite(&n, sizeof(int), 1, fp);
+                    fwrite(&n, sizeof(int), 1, fp);
+                }
+                else
+                {
+                    fwrite(&(map[i][j].neighbor[k]->x), sizeof(int), 1, fp);
+                    fwrite(&(map[i][j].neighbor[k]->y), sizeof(int), 1, fp);
+                }
+            }
+        }
+    }
+    fwrite(&jackvisibility, sizeof(int), 1, fp);
+    fwrite(&turnglobal, sizeof(int), 1, fp);
+    fwrite(&endglobal, sizeof(int), 1, fp);
+    fwrite(&roundglobal, sizeof(int), 1, fp);
+    fwrite(&(jackglobal->place->x), sizeof(int), 1, fp);
+    fwrite(&(jackglobal->place->y), sizeof(int), 1, fp);
+    fwrite(&johndirection, sizeof(int), 1, fp);
+    person *ptr = odd;
+    while (ptr != NULL)
+    {
+        fwrite(ptr->name, sizeof(char), 3, fp);
+        fwrite((&ptr->played), sizeof(int), 1, fp);
+        fwrite(&(ptr->guilty), sizeof(int), 1, fp);
+        fwrite(&(ptr->watch), sizeof(int), 1, fp);
+        fwrite(&(ptr->got), sizeof(int), 1, fp);
+        fwrite(&(ptr->place->x), sizeof(int), 1, fp);
+        fwrite(&(ptr->place->y), sizeof(int), 1, fp);
+        ptr = ptr->next;
+    }
+    ptr = even;
+    while (ptr != NULL)
+    {
+        fwrite(ptr->name, sizeof(char), 3, fp);
+        fwrite((&ptr->played), sizeof(int), 1, fp);
+        fwrite(&(ptr->guilty), sizeof(int), 1, fp);
+        fwrite(&(ptr->watch), sizeof(int), 1, fp);
+        fwrite(&(ptr->got), sizeof(int), 1, fp);
+        fwrite(&(ptr->place->x), sizeof(int), 1, fp);
+        fwrite(&(ptr->place->y), sizeof(int), 1, fp);
+        ptr = ptr->next;
+    }
+    fclose(fp);
+    return;
+}
+
+void resumethegame()
+{
+    FILE *fp = fopen("savedgame.bin", "rb");
+    if (fp == NULL)
+    {
+        printf("no saved game found, please start a new game");
+        MainMenu();
+    }
+
+    for (int i = 0; i < 9; i++)
+    {
+        for (int j = 0; j < 13; j++)
+        {
+            map[i][j].x = i;
+            map[i][j].y = j;
+            fread(map[i][j].what, sizeof(char), 10, fp);
+            fread(map[i][j].watch, sizeof(char), 4, fp);
+            fread(map[i][j].who, sizeof(char), 3, fp);
+            for (int k = 0; k < 6; k++)
+            {
+                int t1, t2;
+                fread(&t1, sizeof(int), 1, fp);
+                fread(&t2, sizeof(int), 1, fp);
+                if (t1 == -1 && t2 == -1)
+                {
+                    map[i][j].neighbor[k] = NULL;
+                }
+                else
+                {
+                    map[i][j].neighbor[k] = &map[t1][t2];
+                }
+            }
+        }
+    }
+    fread(&jackvisibility, sizeof(int), 1, fp);
+    fread(&turnglobal, sizeof(int), 1, fp);
+    fread(&endglobal, sizeof(int), 1, fp);
+    fread(&roundglobal, sizeof(int), 1, fp);
+    int t1, t2;
+    fread(&t1, sizeof(int), 1, fp);
+    fread(&t2, sizeof(int), 1, fp);
+    fread(&johndirection, sizeof(int), 1, fp);
+    create_cards();
+    person *ptr = odd;
+    while (ptr != NULL)
+    {
+        fread(ptr->name, sizeof(char), 3, fp);
+        fread((&ptr->played), sizeof(int), 1, fp);
+        fread(&(ptr->guilty), sizeof(int), 1, fp);
+        fread(&(ptr->watch), sizeof(int), 1, fp);
+        fread(&(ptr->got), sizeof(int), 1, fp);
+        int t1, t2;
+        fread(&t1, sizeof(int), 1, fp);
+        fread(&t2, sizeof(int), 1, fp);
+        ptr->place = &map[t1][t2];
+        ptr = ptr->next;
+    }
+    ptr = even;
+    while (ptr != NULL)
+    {
+        fread(ptr->name, sizeof(char), 3, fp);
+        fread((&ptr->played), sizeof(int), 1, fp);
+        fread(&(ptr->guilty), sizeof(int), 1, fp);
+        fread(&(ptr->watch), sizeof(int), 1, fp);
+        fread(&(ptr->got), sizeof(int), 1, fp);
+        int t1, t2;
+        fread(&t1, sizeof(int), 1, fp);
+        fread(&t2, sizeof(int), 1, fp);
+        ptr->place = &map[t1][t2];
+        ptr = ptr->next;
+    }
+    jackglobal = FindThePerson(map[t1][t2].who);
+    fclose(fp);
+    return;
 }
 
 void GetDeafultGame()
@@ -422,15 +554,18 @@ void printfcard()
     person *ptr = odd;
     while (ptr != NULL)
     {
-        printf("%s ", ptr->name);
+        printf("%s ,", ptr->name);
+        printf("%s ,", ptr->place->what);
         ptr = ptr->next;
     }
     ptr = even;
     while (ptr != NULL)
     {
         printf("%s ", ptr->name);
+        printf("%s ,", ptr->place->what);
         ptr = ptr->next;
     }
+    printf("\n");
     return;
 }
 
@@ -494,7 +629,7 @@ int CanMove(person mover, char *move, cell **last)
     {
         total = 4;
     }
-    while (*ptr != '\0' && ptr != "/n")
+    while (*ptr != '\0' && ptr != "\n")
     {
         if (*ptr == 'u')
         {
@@ -646,13 +781,13 @@ int CanMove(person mover, char *move, cell **last)
         {
             if (!strncmp(where->who, jackglobal->place->who, 2))
             {
-                ;
-                // win();
+                printf("win");
+                win();
             }
             else
             {
-                ;
-                // loose();
+                printf("loose");
+                loose();
             }
         }
         else
@@ -660,11 +795,23 @@ int CanMove(person mover, char *move, cell **last)
             return -17;
         }
     }
+    if (jackvisibility == 0 && !strcmp(mover.name, jackglobal->name))
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            if ((*last) == tunnel[i])
+            {
+                loose();
+                exit(0);
+            }
+        }
+    }
     if (*last == mover.place)
     {
         return -18;
     }
     *last = where;
+
     return 1;
 }
 
@@ -736,6 +883,7 @@ void newturn()
     {
         newturn();
     }
+
     return;
 }
 
@@ -755,7 +903,7 @@ void NewRound()
     }
     if (roundglobal <= 5 && roundglobal >= 2)
     {
-        int i;
+        int i = 0;
         for (i = 0; i < 8; i++)
         {
             if (!strncmp(&(lamp[i]->what[6]), "on!", 3))
@@ -804,7 +952,6 @@ void NewRound()
         johnlight(FindThePerson("JW")->place, johndirection);
     }
     turnglobal = 1;
-    system("cls");
     if (roundglobal % 2 == 1)
     {
         shuffle();
@@ -812,11 +959,15 @@ void NewRound()
     for (int i = 0; i < 4; i++)
     {
         newturn();
-        savethegame();
         turnglobal++;
         checkend();
+        savethegame();
     }
     roundglobal++;
+    if (roundglobal == 9)
+    {
+        loose();
+    }
     checkvisibility();
     NewRound();
 }
@@ -927,10 +1078,7 @@ void checkend()
             }
         }
     }
-    if (roundglobal == 9 && turnglobal == 1)
-    {
-        loose();
-    }
+
     return;
 }
 
@@ -1001,7 +1149,8 @@ void SH_play()
         srand(time(NULL));
         int random = rand() % 8;
         person *pick;
-        for (int i = 0; i < random;)
+        int i = 0;
+        for (i = 0; i < random;)
         {
             person *ptr = odd;
             while (ptr != NULL)
@@ -1029,10 +1178,18 @@ void SH_play()
                 }
                 ptr = ptr->next;
             }
+            if (i == 0)
+            {
+                printf("no more cards");
+                break;
+            }
         }
-        pick->got = 1;
-        pick->guilty = 1;
-        printf("        %s is innocent", pick->name);
+        if (i != 0)
+        {
+            pick->got = 1;
+            pick->guilty = 1;
+            printf("        %s is innocent", pick->name);
+        }
         getchar();
         return;
     }
@@ -1993,6 +2150,7 @@ void IL_play()
     }
     return;
 }
+
 void MS_play()
 {
     person *stealthy = FindThePerson("MS");
@@ -2025,7 +2183,7 @@ void WG_play()
     scanf("%d", &choice);
     if (choice == 1)
     {
-        printf("/n please insert the person's initials you want to change places with:      ");
+        printf("please insert the person's initials you want to change places with:      ");
         char select[3];
         char *ptr = select;
         scanf(" %s", ptr);
@@ -2042,7 +2200,7 @@ void WG_play()
         strcpy(wili->place->who, "WG");
         if (!strcmp(ptr, "JW"))
         {
-            johnlight_off(changewith->place, johndirection);
+            johnlight(changewith->place, johndirection);
         }
     }
     else if (choice == 2)
@@ -2292,7 +2450,25 @@ void MainMenu()
     int temp;
     scanf("%d", &temp);
     getchar();
-    if (temp == 2)
+    if (temp == 1)
+    {
+        resumethegame();
+        while (turnglobal < 5)
+        {
+            newturn();
+            turnglobal++;
+            checkend();
+            savethegame();
+        }
+        roundglobal++;
+        if (roundglobal == 9)
+        {
+            loose();
+        }
+        checkvisibility();
+        NewRound();
+    }
+    else if (temp == 2)
     {
         create_cards();
         shuffle();
@@ -2327,12 +2503,76 @@ void MainMenu()
         system("cls");
         NewRound();
     }
+    else
+    {
+        system("cls");
+        printf("\n\n\n    how to move players:\n");
+        printf("               _______\n");
+        printf("              /       \\\n");
+        printf("      _______/    u    \\_______\n");
+        printf("     /       \\         /       \\\n");
+        printf("    /    h    \\_______/    i    \\\n");
+        printf("    \\         /       \\         /\n");
+        printf("     \\_______/    j    \\_______/\n");
+        printf("     /       \\your cell/       \\\n");
+        printf("    /    n    \\_______/    k    \\\n");
+        printf("    \\         /       \\         /\n");
+        printf("     \\_______/    m    \\_______/\n");
+        printf("             \\         /       \n");
+        printf("              \\_______/\n\n");
+        printf("    for example to go from cell A to B you should type:  uh       \n");
+        printf("               _______\n");
+        printf("              /       \\\n");
+        printf("      _______/         \\_______\n");
+        printf("     /       \\         /       \\\n");
+        printf("    /    B    \\_______/         \\\n");
+        printf("    \\         /       \\         /\n");
+        printf("     \\_______/h        \\_______/\n");
+        printf("     /       \\         /       \\\n");
+        printf("    /         \\___u___/         \\\n");
+        printf("    \\         /       \\         /\n");
+        printf("     \\_______/    A    \\_______/\n");
+        printf("             \\         /       \n");
+        printf("              \\_______/\n\n");
+        printf("    for using the tunnels you type:  j + the number of your destination tunnel     \n");
+        printf("    for example to go from cell A to B you should type:  ij3n       \n");
+        printf("               _______\n");
+        printf("              /       \\\n");
+        printf("      _______/tnl3-open\\_______\n");
+        printf("     /       \\   3     /       \\\n");
+        printf("    /    B   n\\_______/         \\\n");
+        printf("    \\         /       \\         /\n");
+        printf("     \\_______/         \\_______/\n");
+        printf("     /       \\         /       \\\n");
+        printf("    /         \\_______/tnl6-open\\\n");
+        printf("    \\         /       \\    j    /\n");
+        printf("     \\_______/    A   i\\_______/\n");
+        printf("             \\         /       \n");
+        printf("              \\_______/\n\n");
+        printf("    i hope you have a good time with your friends anf families playing my game :*\n\n");
+        SetColor(12);
+        printf("    coded by Helia Akbari");
+        printf("\n    contact me: https://github.com/heliaakbari\n\n\n");
+        SetColor(15);
+        system("pause");
+        system("cls");
+        MainMenu();
+    }
 }
+
 void win()
 {
-    return;
+    system("cls");
+    printf("           The Detective Wins!\n\n\n\n");
+    system("pause");
+    exit(0);
 }
+
 void loose()
 {
-    return;
+    system("cls");
+    printf("            Jack Wins!");
+    printf("jack's secret identity was %s\n\n\n\n!", jackglobal->name);
+    system("pause");
+    exit(0);
 }

@@ -6,7 +6,5 @@ int main()
 {
     
     MainMenu();
-    getchar(); //
-    getchar(); //
     return 0;
 }
