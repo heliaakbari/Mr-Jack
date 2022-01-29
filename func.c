@@ -787,12 +787,10 @@ int CanMove(person mover, char *move, cell **last)
         {
             if (!strncmp(where->who, jackglobal->place->who, 2))
             {
-                printf("win");
                 win();
             }
             else
             {
-                printf("loose");
                 loose();
             }
         }
@@ -2481,12 +2479,34 @@ void MainMenu()
         GetDeafultGame();
         system("cls");
         SetColor(13);
+        for (int i = 0; i < 19; i++)
+        {
+            decname[i] = '-';
+            jackname[i] = '-';
+        }
+        decname[19] = '\0';
+        jackname[19] = '\0';
         printf("\n\n    enter your name Jack's player:    ");
-        scanf(" %s", jackname);
+        char c1;
+        char *ptr = jackname;
+        c1 = getchar();
+        while (isprint((int)(c1)) || jackname[0] == '-')
+        {
+            *ptr = c1;
+            ptr = ptr + 1;
+            c1 = getchar();
+        }
         system("cls");
         SetColor(9);
         printf("\n\n    enter your name Detective's player:    ");
-        scanf(" %s", decname);
+        ptr = decname;
+        c1 = getchar();
+        while (isprint((int)(c1)) || decname[0] == '-')
+        {
+            *ptr = c1;
+            ptr = ptr + 1;
+            c1 = getchar();
+        }
         system("cls");
         printf("\n\n    It is Jack's turn. Jack please press 1 to see your identity     ");
         srand(time(NULL));
@@ -2575,7 +2595,7 @@ void MainMenu()
     else if (temp == 3)
     {
         system("cls");
-        printf("\n\n        scoreboard      \n");
+        printf("\n\n          scoreboard      \n");
         FILE *fp = fopen("scoreboard.bin", "rb");
         char name[20];
         int num;
@@ -2585,12 +2605,16 @@ void MainMenu()
         {
             printf("        no records yet\n");
         }
-        for (int i = 0; i < num; i++)
+        while (1)
         {
-            printf("\n");
             fread(name, sizeof(char), 20, fp);
             fread(&score, sizeof(int), 1, fp);
-            printf("    #%s#----------#%d#\n", name, score);
+            if (feof(fp))
+            {
+                break;
+            }
+            printf("     %s", name);
+            printf("%d \n", score);
         }
         fclose(fp);
         printf("\n\n");
@@ -2622,16 +2646,21 @@ void win()
     char name[20];
     fread(&num, sizeof(int), 1, fp);
     int mark = 0;
-    for (int i = 0; i < num; i++)
+    while (1)
     {
         fread(name, sizeof(char), 20, fp);
         fread(&wins, sizeof(int), 1, fp);
+        if (feof(fp))
+        {
+            break;
+        }
         if (!strncmp(decname, name, 18))
         {
             wins++;
-            fseek(fp, (long)(-1 * sizeof(int)), SEEK_CUR);
+            fseek(fp, -4, SEEK_CUR);
             fwrite(&wins, sizeof(int), 1, fp);
             mark = 1;
+            break;
         }
     }
     if (mark == 0)
@@ -2653,7 +2682,6 @@ void win()
     fclose(fp);
     system("pause");
     exit(0);
-    return;
 }
 
 void loose()
@@ -2671,16 +2699,21 @@ void loose()
     char name[20];
     fread(&num, sizeof(int), 1, fp);
     int mark = 0;
-    for (int i = 0; i < num; i++)
+    while (1)
     {
         fread(name, sizeof(char), 20, fp);
         fread(&wins, sizeof(int), 1, fp);
+        if (feof(fp))
+        {
+            break;
+        }
         if (!strncmp(jackname, name, 18))
         {
             wins++;
-            fseek(fp, (long)(-1 * sizeof(int)), SEEK_CUR);
+            fseek(fp, -4, SEEK_CUR);
             fwrite(&wins, sizeof(int), 1, fp);
             mark = 1;
+            break;
         }
     }
     if (mark == 0)
@@ -2702,5 +2735,4 @@ void loose()
     fclose(fp);
     system("pause");
     exit(0);
-    return;
 }

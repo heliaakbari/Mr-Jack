@@ -4,7 +4,6 @@
 #include "func.h"
 int main()
 {
-    
     MainMenu();
     return 0;
 }
